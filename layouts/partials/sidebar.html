@@ -13,20 +13,20 @@
           </span>
         {{ end }}
       </a>
-      {{ with .Site.Params.social }}
-        <div class="profile-social" aria-label="社交链接">
-          {{ range . }}
-            <a href="{{ .url }}" target="_blank" rel="me noopener" aria-label="{{ .name }}" title="{{ .name }}">
-              {{ partial "social-icon.html" . }}
-            </a>
-          {{ end }}
-        </div>
-      {{ end }}
     </div>
-    <div>
+    <div class="profile-copy">
       <p class="profile-name">{{ .Site.Params.author }}</p>
       <p class="profile-subtitle">{{ .Site.Params.subtitle }}</p>
     </div>
+    {{ with .Site.Params.social }}
+      <div class="profile-social" aria-label="社交链接">
+        {{ range . }}
+          <a href="{{ .url }}" target="_blank" rel="me noopener noreferrer" aria-label="{{ .name }}" title="{{ .name }}">
+            {{ partial "social-icon.html" . }}
+          </a>
+        {{ end }}
+      </div>
+    {{ end }}
   </div>
 
   <nav class="main-nav" aria-label="主导航">

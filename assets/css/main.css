@@ -97,16 +97,15 @@ img {
 
 .avatar-wrap {
   position: relative;
-  width: 92px;
-  height: 92px;
+  width: 112px;
+  height: 112px;
 }
 
 .avatar {
-  width: 92px;
-  height: 92px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid var(--surface-strong);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
 }
 
@@ -619,18 +618,33 @@ p {
   }
 
   .profile {
-    grid-template-columns: 72px 1fr;
+    grid-template-columns: 86px minmax(0, 1fr);
     align-items: center;
+    column-gap: 14px;
+    row-gap: 8px;
   }
 
   .profile-head {
-    justify-items: center;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    justify-items: start;
+  }
+
+  .profile-copy {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .profile-social {
+    grid-column: 2;
+    grid-row: 2;
+    flex-wrap: nowrap;
   }
 
   .avatar-wrap,
   .avatar {
-    width: 72px;
-    height: 72px;
+    width: 86px;
+    height: 86px;
   }
 
   .avatar-status {
