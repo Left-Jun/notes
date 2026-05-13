@@ -2,5 +2,5 @@
 /resources/_gen/
 /.hugo_build.lock
 /.hugo_cache/
+/.vercel/
 *.log
-

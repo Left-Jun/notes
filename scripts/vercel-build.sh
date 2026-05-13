@@ -7,6 +7,13 @@ HUGO_BIN="${HUGO_DIR}/hugo"
 HUGO_ARCHIVE="hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
 HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
 
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    hugo --gc --minify
+    exit 0
+    ;;
+esac
+
 if [ ! -x "${HUGO_BIN}" ]; then
   mkdir -p "${HUGO_DIR}"
   curl -fsSL "${HUGO_URL}" -o /tmp/hugo.tar.gz
@@ -15,4 +22,3 @@ if [ ! -x "${HUGO_BIN}" ]; then
 fi
 
 "${HUGO_BIN}" --gc --minify
-
