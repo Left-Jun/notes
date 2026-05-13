@@ -1,6 +1,5 @@
 {
-  "buildCommand": "hugo --gc --minify",
+  "buildCommand": "bash scripts/vercel-build.sh",
   "outputDirectory": "public",
   "installCommand": ""
 }
-

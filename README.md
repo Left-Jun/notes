@@ -27,3 +27,12 @@ hugo server --disableFastRender
 hugo --gc --minify
 ```
 
+## Vercel
+
+Vercel 构建会运行 `scripts/vercel-build.sh`，先下载指定版本的 Hugo，再生成 `public/`。
+
+默认 Hugo 版本是 `0.155.2`。需要调整时，可以在 Vercel 项目环境变量里设置：
+
+```text
+HUGO_VERSION=0.155.2
+```
