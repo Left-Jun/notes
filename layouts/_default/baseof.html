@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Lang | default "zh-CN" }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  <script>
+    const savedTheme = localStorage.getItem("limenaut-notes-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+  </script>
+  <div class="site-shell">
+    {{ partial "sidebar.html" . }}
+    <main class="site-main" id="content">
+      {{ block "main" . }}{{ end }}
+      {{ partial "footer.html" . }}
+    </main>
+  </div>
+  {{ $js := resources.Get "js/main.js" | minify | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}"></script>
+</body>
+</html>
+

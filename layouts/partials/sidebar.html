@@ -1,0 +1,47 @@
+<aside class="site-sidebar">
+  <div class="profile">
+    <div class="profile-head">
+      <a class="avatar-wrap" href="{{ "/" | relURL }}" aria-label="返回首页">
+        <img class="avatar" src="{{ .Site.Params.avatar | relURL }}" alt="{{ .Site.Params.author }}">
+        {{ with .Site.Params.status }}
+          <span class="avatar-status" tabindex="0" aria-label="{{ .title }}: {{ .description }}">
+            <span aria-hidden="true">{{ .emoji }}</span>
+            <span class="status-popover" role="tooltip">
+              <strong>{{ .title }}</strong>
+              <small>{{ .description }}</small>
+            </span>
+          </span>
+        {{ end }}
+      </a>
+      {{ with .Site.Params.social }}
+        <div class="profile-social" aria-label="社交链接">
+          {{ range . }}
+            <a href="{{ .url }}" target="_blank" rel="me noopener" aria-label="{{ .name }}" title="{{ .name }}">
+              {{ partial "social-icon.html" . }}
+            </a>
+          {{ end }}
+        </div>
+      {{ end }}
+    </div>
+    <div>
+      <p class="profile-name">{{ .Site.Params.author }}</p>
+      <p class="profile-subtitle">{{ .Site.Params.subtitle }}</p>
+    </div>
+  </div>
+
+  <nav class="main-nav" aria-label="主导航">
+    {{ range .Site.Menus.main }}
+      <a href="{{ .URL | relURL }}" class="{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}is-active{{ end }}">
+        <span aria-hidden="true">{{ .Params.icon }}</span>
+        <span>{{ .Name }}</span>
+      </a>
+    {{ end }}
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色">
+      <span data-theme-icon>◐</span>
+      <span>主题</span>
+    </button>
+  </div>
+</aside>

@@ -1,0 +1,29 @@
+{{ define "main" }}
+  <article class="article">
+    <header class="article-header">
+      <p class="eyebrow">{{ with .CurrentSection.Params.emoji }}{{ . }} {{ end }}{{ .CurrentSection.Title }}</p>
+      <h1>{{ .Title }}</h1>
+      {{ partial "article-meta.html" . }}
+      {{ with .Params.summary }}<p class="article-summary">{{ . }}</p>{{ end }}
+    </header>
+
+    <div class="article-content">
+      {{ .Content }}
+    </div>
+
+    <footer class="article-tags">
+      {{ range .GetTerms "categories" }}
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+      {{ end }}
+      {{ range .GetTerms "tags" }}
+        <a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+      {{ end }}
+    </footer>
+  </article>
+
+  <nav class="post-nav" aria-label="前后文章">
+    {{ with .PrevInSection }}<a href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ end }}
+    {{ with .NextInSection }}<a href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}
+  </nav>
+{{ end }}
+

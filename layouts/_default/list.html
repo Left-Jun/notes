@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <section class="list-hero">
+    <p class="eyebrow">{{ with .Params.emoji }}{{ . }}{{ else }}Archive{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  </section>
+
+  <div class="note-list">
+    {{ range .Paginator.Pages }}
+      {{ partial "note-card.html" . }}
+    {{ else }}
+      <p class="empty-state">这里还空着，等下一次记录。</p>
+    {{ end }}
+  </div>
+
+  {{ if gt .Paginator.TotalPages 1 }}
+    <nav class="pager" aria-label="分页">
+      {{ with .Paginator.Prev }}<a href="{{ .URL }}">上一页</a>{{ end }}
+      <span>{{ .Paginator.PageNumber }} / {{ .Paginator.TotalPages }}</span>
+      {{ with .Paginator.Next }}<a href="{{ .URL }}">下一页</a>{{ end }}
+    </nav>
+  {{ end }}
+{{ end }}
+

@@ -1,0 +1,26 @@
+{{ define "main" }}
+  {{ $sections := .Site.Params.mainSections }}
+  {{ $pages := where .Site.RegularPages "Section" "in" $sections }}
+  {{ $paginator := .Paginate ($pages.ByDate.Reverse) }}
+
+  <section class="list-hero">
+    <p class="eyebrow">{{ .Params.emoji }} Archive</p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  </section>
+
+  <div class="note-list">
+    {{ range $paginator.Pages }}
+      {{ partial "note-card.html" . }}
+    {{ end }}
+  </div>
+
+  {{ if gt $paginator.TotalPages 1 }}
+    <nav class="pager" aria-label="分页">
+      {{ with $paginator.Prev }}<a href="{{ .URL }}">上一页</a>{{ end }}
+      <span>{{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>
+      {{ with $paginator.Next }}<a href="{{ .URL }}">下一页</a>{{ end }}
+    </nav>
+  {{ end }}
+{{ end }}
+

@@ -1,0 +1,40 @@
+{{ define "main" }}
+  {{ $sections := .Site.Params.mainSections }}
+  {{ $pages := where .Site.RegularPages "Section" "in" $sections }}
+  <section class="home-hero">
+    <p class="eyebrow">{{ .Site.Params.home.kicker }}</p>
+    <h1>{{ .Site.Params.home.title }}</h1>
+    <p>{{ .Site.Params.home.intro }}</p>
+    <div class="hero-actions">
+      <a class="primary-link" href="{{ "/diary/" | relURL }}">看最近日记</a>
+      <a class="secondary-link" href="{{ "/ideas/" | relURL }}">翻小巧思</a>
+    </div>
+  </section>
+
+  <section class="section-grid" aria-label="内容分类">
+    {{ range $sections }}
+      {{ with $.Site.GetPage (printf "/%s" .) }}
+        <a class="section-card" href="{{ .RelPermalink }}">
+          <span>{{ .Params.emoji }}</span>
+          <strong>{{ .Title }}</strong>
+          <small>{{ .Description }}</small>
+        </a>
+      {{ end }}
+    {{ end }}
+  </section>
+
+  <section class="content-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Recent Notes</p>
+        <h2>最近记录</h2>
+      </div>
+      <a href="{{ "/all/" | relURL }}">全部</a>
+    </div>
+    <div class="note-list">
+      {{ range first 8 ($pages.ByDate.Reverse) }}
+        {{ partial "note-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

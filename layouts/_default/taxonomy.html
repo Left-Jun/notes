@@ -1,0 +1,12 @@
+{{ define "main" }}
+  <section class="list-hero">
+    <p class="eyebrow">Tagged</p>
+    <h1>{{ .Title }}</h1>
+  </section>
+  <div class="note-list">
+    {{ range .Paginator.Pages }}
+      {{ partial "note-card.html" . }}
+    {{ end }}
+  </div>
+{{ end }}
+

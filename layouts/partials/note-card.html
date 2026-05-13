@@ -1,0 +1,23 @@
+{{ $section := .Site.GetPage (printf "/%s" .Section) }}
+<article class="note-card">
+  <a href="{{ .RelPermalink }}">
+    <div class="note-card__meta">
+      <span class="section-pill">{{ with $section.Params.emoji }}{{ . }} {{ end }}{{ with $section }}{{ .Title }}{{ else }}{{ .Section }}{{ end }}</span>
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+    </div>
+    <h2>{{ .Title }}</h2>
+    {{ with .Params.summary }}
+      <p>{{ . }}</p>
+    {{ else }}
+      <p>{{ .Summary | plainify }}</p>
+    {{ end }}
+    <div class="note-card__foot">
+      {{ with .Params.mood }}<span>{{ . }}</span>{{ end }}
+      {{ with .Params.location }}<span>{{ . }}</span>{{ end }}
+      {{ range first 3 (.GetTerms "tags") }}
+        <span>#{{ .LinkTitle }}</span>
+      {{ end }}
+    </div>
+  </a>
+</article>
+
