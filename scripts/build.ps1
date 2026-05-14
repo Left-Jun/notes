@@ -23,8 +23,7 @@ foreach ($candidate in $candidates) {
 }
 
 if (-not $hugo) {
-    throw "没有找到 Hugo。可以把 hugo.exe 放到站点根目录，或安装 Hugo 后重试。"
+    throw "Hugo was not found. Put hugo.exe in the site root, install Hugo, or keep the portfolio Hugo binary available."
 }
 
 & $hugo --source $root --gc --minify
-
