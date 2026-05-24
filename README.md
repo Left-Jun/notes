@@ -1,38 +1,75 @@
-# 阈限手记 | Limenaut Notes
+# limenauts / 阈限手记
 
-这是 Left-Jun 的生活记录型 Hugo 小站，和作品集站分开维护。
+这是 `notes.leftjun.com` 的动态随笔站。旧 Hugo 站 `C:\Users\MR\Desktop\LeftJun-Notes` 暂时保留为备份和内容来源。
 
-## 内容目录
+## 技术栈
 
-- `content/posts/`：随笔和长一点的观察
-- `content/diary/`：日记、短记、近况
-- `content/travel/`：旅行和城市记录
-- `content/ideas/`：小巧思、灵感、待办点子
-- `content/events/`：活动、比赛、展览、聚会经历
+- Next.js App Router
+- Supabase Postgres
+- Supabase Storage
+- 轻量后台写入接口
+- v1 评论入口关闭，评论表保留给后续审核后台
 
-## 常用命令
-
-```powershell
-.\scripts\serve.ps1
-```
+## 本地运行
 
 ```powershell
-.\scripts\build.ps1
+npm install
+npm run dev
 ```
 
-如果你的系统已经安装了 Hugo，也可以直接运行：
+如果没有 Supabase 环境变量，网站会自动使用 `lib/seed-notes.ts` 里的旧站种子内容，方便先调 UI。
 
-```powershell
-hugo server --disableFastRender
-hugo --gc --minify
-```
+开发模式下，后台发布会写入 `data/notes.local.json`，图片上传会写入 `public/uploads/`。这两个路径默认不进 Git，只用于本地演示。接入 Supabase 后，线上发布会改为写数据库和 Storage。
 
-## Vercel
+## Supabase 环境变量
 
-Vercel 构建会运行 `scripts/vercel-build.sh`，先下载指定版本的 Hugo，再生成 `public/`。
-
-默认 Hugo 版本是 `0.155.2`。需要调整时，可以在 Vercel 项目环境变量里设置：
+复制 `.env.example` 为 `.env.local`，填入：
 
 ```text
-HUGO_VERSION=0.155.2
+NEXT_PUBLIC_SITE_URL=https://notes.leftjun.com
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_WRITE_TOKEN=
+SUPABASE_STORAGE_BUCKET=note-images
+```
+
+`ADMIN_WRITE_TOKEN` 用于保护后台写入和图片上传接口。不要提交真实值。
+
+本地开发未配置 Supabase 时可以不填发布口令；生产环境必须配置 Supabase 和写入口令。
+
+## 数据库
+
+在 Supabase SQL Editor 里执行：
+
+```text
+supabase/schema.sql
+```
+
+脚本会创建 `notes`、`comments` 表和 `note-images` 公开读取 bucket。`notes` 公开只读已发布内容；评论表第一版不开放游客写入。
+
+## 导入旧 Hugo 内容
+
+先配置 `.env.local`，然后运行：
+
+```powershell
+$env:HUGO_CONTENT_DIR="C:\Users\MR\Desktop\LeftJun-Notes\content"
+npm run import:hugo
+```
+
+导入脚本会读取旧站 Markdown front matter，并写入 Supabase `notes` 表。默认写成 `published`，按 `slug` upsert，可重复运行。
+
+当前导入范围只包含：
+
+- `posts`
+- `diary`
+- `travel`
+- `ideas`
+- `events`
+
+`_index.md`、`about.md` 和 `all/_index.md` 不会作为文章导入。没有 Supabase 密钥时可以先 dry run：
+
+```powershell
+$env:IMPORT_DRY_RUN="1"
+npm run import:hugo
 ```

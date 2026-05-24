@@ -1,6 +1,10 @@
-/public/
-/resources/_gen/
-/.hugo_build.lock
-/.hugo_cache/
-/.vercel/
+.env*
+!.env.example
+.next/
+node_modules/
+out/
+dist/
 *.log
+coverage/
+public/uploads/
+data/*.local.json

@@ -1,0 +1,31 @@
+{
+  "name": "limenauts-notes",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 1315",
+    "build": "next build",
+    "start": "next start -p 1315",
+    "lint": "next lint",
+    "import:hugo": "node scripts/import-hugo-content.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "latest",
+    "gray-matter": "latest",
+    "lucide-react": "latest",
+    "marked": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
+  }
+}

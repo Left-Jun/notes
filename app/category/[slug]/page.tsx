@@ -1,0 +1,35 @@
+import { notFound } from "next/navigation";
+import { NoteCard } from "@/components/note-card";
+import { SiteShell } from "@/components/site-shell";
+import { getNotes } from "@/lib/notes";
+import { getSection } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
+
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const section = slug === "all" ? getSection("all") : getSection(slug);
+
+  if (!section) {
+    notFound();
+  }
+
+  const notes = await getNotes({ section: slug === "all" ? undefined : slug, status: "published" });
+
+  return (
+    <SiteShell active={slug}>
+      <section className="list-hero">
+        <p className="eyebrow">{section.mark} Archive</p>
+        <h1>{section.label}</h1>
+        <p>{section.description}</p>
+      </section>
+
+      <div className="note-list">
+        {notes.map((note) => (
+          <NoteCard note={note} key={note.slug} />
+        ))}
+        {notes.length === 0 ? <p className="empty-state">这里还空着，等下一次记录。</p> : null}
+      </div>
+    </SiteShell>
+  );
+}
