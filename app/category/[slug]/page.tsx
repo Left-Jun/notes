@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { NoteCard } from "@/components/note-card";
 import { SiteShell } from "@/components/site-shell";
 import { getNotes } from "@/lib/notes";
+import { buildSearchEntries } from "@/lib/search";
 import { getSection } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -14,10 +15,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const notes = await getNotes({ section: slug === "all" ? undefined : slug, status: "published" });
+  const allNotes = await getNotes({ status: "published" });
+  const notes = slug === "all" ? allNotes : allNotes.filter((note) => note.section === slug);
+  const searchEntries = buildSearchEntries(allNotes);
 
   return (
-    <SiteShell active={slug}>
+    <SiteShell active={slug} searchEntries={searchEntries}>
       <section className="list-hero">
         <p className="eyebrow">{section.mark} Archive</p>
         <h1>{section.label}</h1>

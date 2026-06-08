@@ -2,7 +2,7 @@ import { marked } from "marked";
 import { getLocalComments, getLocalNotes } from "@/lib/local-store";
 import { seedNotes } from "@/lib/seed-notes";
 import { getPublicSupabase, isSupabaseConfigured } from "@/lib/supabase";
-import type { Note, NoteComment, NoteStatus } from "@/lib/types";
+import type { MoodPrivacy, Note, NoteComment, NoteStatus } from "@/lib/types";
 
 type NoteRow = {
   id: string;
@@ -13,6 +13,10 @@ type NoteRow = {
   section: string;
   tags: string[] | null;
   mood: string | null;
+  mood_intensity: number | null;
+  mood_privacy: MoodPrivacy | null;
+  monster_id: string | null;
+  support_count: number | null;
   location: string | null;
   cover_url: string | null;
   status: NoteStatus;
@@ -41,6 +45,10 @@ function mapNote(row: NoteRow): Note {
     section: row.section,
     tags: row.tags || [],
     mood: row.mood,
+    moodIntensity: row.mood_intensity,
+    moodPrivacy: row.mood_privacy,
+    monsterId: row.monster_id,
+    supportCount: row.support_count || 0,
     location: row.location,
     coverUrl: row.cover_url,
     status: row.status,
@@ -62,10 +70,20 @@ function mapComment(row: CommentRow): NoteComment {
   };
 }
 
+function mergeNotes(primary: Note[], fallback: Note[]) {
+  const seen = new Set<string>();
+
+  return [...primary, ...fallback].filter((note) => {
+    if (seen.has(note.slug)) return false;
+    seen.add(note.slug);
+    return true;
+  });
+}
+
 export async function getNotes(options: { section?: string; status?: NoteStatus } = {}) {
   if (!isSupabaseConfigured()) {
     const localNotes = await getLocalNotes();
-    return [...localNotes, ...seedNotes]
+    return mergeNotes(localNotes, seedNotes)
       .filter((note) => (options.section ? note.section === options.section : true))
       .filter((note) => (options.status ? note.status === options.status : true))
       .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());

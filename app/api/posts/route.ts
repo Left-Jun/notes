@@ -34,6 +34,18 @@ function toSummary(summary: unknown, content: unknown) {
     .slice(0, 90);
 }
 
+function toMoodIntensity(value: unknown) {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+  return Math.max(0, Math.min(100, Math.round(number)));
+}
+
+function toMoodPrivacy(value: unknown) {
+  return value === "anonymous" || value === "summary" || value === "private" ? value : "private";
+}
+
 export async function POST(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -61,6 +73,10 @@ export async function POST(request: Request) {
       section: payload.section || "posts",
       tags: Array.isArray(payload.tags) ? payload.tags : [],
       mood: payload.mood || null,
+      moodIntensity: toMoodIntensity(payload.moodIntensity),
+      moodPrivacy: toMoodPrivacy(payload.moodPrivacy),
+      monsterId: payload.monsterId || null,
+      supportCount: 0,
       location: payload.location || null,
       coverUrl: payload.coverUrl || null,
       status: payload.status === "draft" ? "draft" : "published",
@@ -69,8 +85,8 @@ export async function POST(request: Request) {
       updatedAt: now
     };
 
-    await upsertLocalNote(note);
-    return NextResponse.json({ note, storage: "local" });
+    const savedNote = await upsertLocalNote(note, toSlug(payload.sourceSlug, slug));
+    return NextResponse.json({ note: savedNote, storage: "tracked-local" });
   }
 
   const supabase = getAdminSupabase();
@@ -86,6 +102,9 @@ export async function POST(request: Request) {
         section: payload.section || "posts",
         tags: Array.isArray(payload.tags) ? payload.tags : [],
         mood: payload.mood || null,
+        mood_intensity: toMoodIntensity(payload.moodIntensity),
+        mood_privacy: toMoodPrivacy(payload.moodPrivacy),
+        monster_id: payload.monsterId || null,
         location: payload.location || null,
         cover_url: payload.coverUrl || null,
         status: payload.status === "draft" ? "draft" : "published",

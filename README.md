@@ -17,9 +17,21 @@ npm install
 npm run dev
 ```
 
-如果没有 Supabase 环境变量，网站会自动使用 `lib/seed-notes.ts` 里的旧站种子内容，方便先调 UI。
+如果没有 Supabase 环境变量，网站会自动读取 `data/notes.json` 和 `lib/seed-notes.ts` 里的旧站种子内容，方便先调 UI。
 
-开发模式下，后台发布会写入 `data/notes.local.json`，图片上传会写入 `public/uploads/`。这两个路径默认不进 Git，只用于本地演示。接入 Supabase 后，线上发布会改为写数据库和 Storage。
+开发模式下，打开 `http://localhost:1315/admin` 可以使用图形化内容编辑器。未配置 Supabase 时，保存文章会写入可提交的 `data/notes.json`；图片上传会写入本地预览目录 `public/uploads/`，该目录默认不进 Git。匿名心情支持仍写入 `data/mood-supports.local.json`，这个演示用 `.local.json` 默认不进 Git。
+
+常用本地写作流程：
+
+```powershell
+npm run dev
+# 打开 http://localhost:1315/admin 编辑内容
+git add data/notes.json
+git commit -m "Update notes content"
+git push
+```
+
+接入 Supabase 后，线上发布会改为写数据库和 Storage。
 
 ## Supabase 环境变量
 
@@ -47,6 +59,18 @@ supabase/schema.sql
 ```
 
 脚本会创建 `notes`、`comments` 表和 `note-images` 公开读取 bucket。`notes` 公开只读已发布内容；评论表第一版不开放游客写入。
+
+当前 `notes` 表也预留了心情记录字段：
+
+- `mood`
+- `mood_intensity`
+- `mood_privacy`
+- `monster_id`
+- `support_count`
+
+这些字段用于 `/mood` 心情小径、`/square` 匿名心情广场、`/monster/[id]` 坏心情怪兽原型和 `/stats` 状态回顾。已有旧表时可以重新执行 `supabase/schema.sql`，脚本会用 `alter table ... add column if not exists` 补齐字段。
+
+匿名支持动作写入 `mood_supports` 表，并通过 `increment_note_support()` 递增对应心情记录的 `support_count`。这个动作由 `/api/mood/support` 服务端接口完成，不直接开放前端匿名写数据库。
 
 ## 导入旧 Hugo 内容
 

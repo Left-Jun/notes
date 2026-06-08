@@ -1,7 +1,8 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/site-shell";
-import { getNoteBySlug, renderMarkdown } from "@/lib/notes";
+import { getNoteBySlug, getNotes, renderMarkdown } from "@/lib/notes";
+import { buildSearchEntries } from "@/lib/search";
 import { formatDate, getSection } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,10 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
 
   const section = getSection(note.section);
   const html = renderMarkdown(note.content);
+  const searchEntries = buildSearchEntries(await getNotes({ status: "published" }));
 
   return (
-    <SiteShell active={note.section}>
+    <SiteShell active={note.section} searchEntries={searchEntries}>
       <article className="article-panel">
         <header className="article-header">
           <p className="eyebrow">

@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     template: "%s | limenauts"
   },
   description: siteDescription,
+  icons: {
+    icon: "/brand/lj-mark.png",
+    shortcut: "/brand/lj-mark.png",
+    apple: "/brand/lj-mark.png"
+  },
   openGraph: {
     title: siteTitle,
     description: siteDescription,
