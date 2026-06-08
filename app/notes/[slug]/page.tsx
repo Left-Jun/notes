@@ -1,5 +1,6 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
+import { AuthorBadge } from "@/components/author-badge";
 import { SiteShell } from "@/components/site-shell";
 import { getNoteBySlug, getNotes, renderMarkdown } from "@/lib/notes";
 import { buildSearchEntries } from "@/lib/search";
@@ -28,6 +29,7 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
           </p>
           <h1>{note.title}</h1>
           <div className="article-meta">
+            <AuthorBadge profile={note.authorProfile} />
             <span>
               <CalendarDays size={15} />
               {formatDate(note.publishedAt)}

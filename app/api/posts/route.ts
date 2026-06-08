@@ -79,6 +79,7 @@ export async function POST(request: Request) {
       supportCount: 0,
       location: payload.location || null,
       coverUrl: payload.coverUrl || null,
+      authorProfileId: payload.authorProfileId || null,
       status: payload.status === "draft" ? "draft" : "published",
       publishedAt: payload.publishedAt || now,
       createdAt: now,
@@ -91,27 +92,30 @@ export async function POST(request: Request) {
 
   const supabase = getAdminSupabase();
 
+  const row: Record<string, unknown> = {
+    slug,
+    title: payload.title,
+    summary: toSummary(payload.summary, payload.content),
+    content_md: payload.content,
+    section: payload.section || "posts",
+    tags: Array.isArray(payload.tags) ? payload.tags : [],
+    mood: payload.mood || null,
+    mood_intensity: toMoodIntensity(payload.moodIntensity),
+    mood_privacy: toMoodPrivacy(payload.moodPrivacy),
+    monster_id: payload.monsterId || null,
+    location: payload.location || null,
+    cover_url: payload.coverUrl || null,
+    status: payload.status === "draft" ? "draft" : "published",
+    published_at: payload.publishedAt || new Date().toISOString()
+  };
+
+  if (payload.authorProfileId) {
+    row.author_profile_id = payload.authorProfileId;
+  }
+
   const { data, error } = await supabase
     .from("notes")
-    .upsert(
-      {
-        slug,
-        title: payload.title,
-        summary: toSummary(payload.summary, payload.content),
-        content_md: payload.content,
-        section: payload.section || "posts",
-        tags: Array.isArray(payload.tags) ? payload.tags : [],
-        mood: payload.mood || null,
-        mood_intensity: toMoodIntensity(payload.moodIntensity),
-        mood_privacy: toMoodPrivacy(payload.moodPrivacy),
-        monster_id: payload.monsterId || null,
-        location: payload.location || null,
-        cover_url: payload.coverUrl || null,
-        status: payload.status === "draft" ? "draft" : "published",
-        published_at: payload.publishedAt || new Date().toISOString()
-      },
-      { onConflict: "slug" }
-    )
+    .upsert(row, { onConflict: "slug" })
     .select("id, slug")
     .single();
 

@@ -1,5 +1,22 @@
 export type NoteStatus = "published" | "draft";
 export type MoodPrivacy = "private" | "anonymous" | "summary";
+export type SocialPlatform = "github" | "youtube" | "bilibili" | "xiaohongshu";
+
+export type ProfileSocialLinks = Partial<Record<SocialPlatform, string>>;
+
+export type UserProfile = {
+  id: string;
+  authUserId?: string | null;
+  displayName: string;
+  avatarUrl?: string | null;
+  statusEmoji?: string | null;
+  statusText?: string | null;
+  bio?: string | null;
+  socialLinks: ProfileSocialLinks;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export type Note = {
   id: string;
@@ -16,6 +33,8 @@ export type Note = {
   supportCount?: number;
   location?: string | null;
   coverUrl?: string | null;
+  authorProfileId?: string | null;
+  authorProfile?: UserProfile | null;
   status: NoteStatus;
   publishedAt: string;
   createdAt?: string;

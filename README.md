@@ -7,6 +7,7 @@
 - Next.js App Router
 - Supabase Postgres
 - Supabase Storage
+- Supabase Auth 个人资料
 - 轻量后台写入接口
 - v1 评论入口关闭，评论表保留给后续审核后台
 
@@ -33,6 +34,8 @@ git push
 
 接入 Supabase 后，线上发布会改为写数据库和 Storage。
 
+`/login`、`/register` 和 `/me` 使用 Supabase Auth。登录用户可以编辑昵称、头像、状态、一句话介绍和社交链接；左侧栏、右上角头像和文章作者信息会读取同一套 profile 数据。
+
 ## Supabase 环境变量
 
 复制 `.env.example` 为 `.env.local`，填入：
@@ -58,10 +61,11 @@ SUPABASE_STORAGE_BUCKET=note-images
 supabase/schema.sql
 ```
 
-脚本会创建 `notes`、`comments` 表和 `note-images` 公开读取 bucket。`notes` 公开只读已发布内容；评论表第一版不开放游客写入。
+脚本会创建 `profiles`、`notes`、`comments`、`mood_supports` 表，以及 `note-images`、`profile-avatars` 公开读取 bucket。`profiles` 公开可读，用户只能更新自己的资料；`notes` 公开只读已发布内容；评论表第一版不开放游客写入。
 
-当前 `notes` 表也预留了心情记录字段：
+当前 `notes` 表也预留了作者和心情记录字段：
 
+- `author_profile_id`
 - `mood`
 - `mood_intensity`
 - `mood_privacy`

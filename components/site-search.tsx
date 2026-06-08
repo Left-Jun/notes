@@ -42,13 +42,6 @@ export function SiteSearch({ entries }: SiteSearchProps) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        inputRef.current?.focus();
-        inputRef.current?.select();
-        setOpen(true);
-      }
-
       if (event.key === "Escape") {
         setOpen(false);
         inputRef.current?.blur();
@@ -103,9 +96,7 @@ export function SiteSearch({ entries }: SiteSearchProps) {
         >
           <X size={15} />
         </button>
-      ) : (
-        <kbd>Ctrl K</kbd>
-      )}
+      ) : null}
       {showResults ? (
         <div className="site-search__results" id={resultsId} role="listbox">
           {results.length > 0 ? (

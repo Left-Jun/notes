@@ -1,11 +1,9 @@
 import { Archive, Gamepad2, Heart, Home, LayoutDashboard, LineChart, MessageCircle, PenLine, Sparkles } from "lucide-react";
-import Image from "next/image";
-import { AuthQuickEntry } from "@/components/auth-quick-entry";
+import { AuthQuickEntry, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
-import { SocialIcon } from "@/components/social-icon";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { sections, siteName, socialLinks } from "@/lib/site";
+import { sections } from "@/lib/site";
 
 type SiteShellProps = {
   active?: string;
@@ -71,33 +69,7 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
               />
             </a>
 
-            <div className="profile-card">
-              <div className="profile">
-                <div className="profile-head">
-                  <a className="avatar-wrap" href="/" aria-label="返回首页">
-                    <Image className="avatar" src="/img/avatar.jpg" alt="limenauts avatar" width={112} height={112} priority />
-                    <span className="avatar-status" tabIndex={0} aria-label="动态站已接入发布后台">
-                      <span aria-hidden="true">✦</span>
-                      <span className="status-popover" role="tooltip">
-                        <strong>动态站接入中</strong>
-                        <small>先把写作、发布和图片上传做稳，账号入口先保持轻量本地态。</small>
-                      </span>
-                    </span>
-                  </a>
-                </div>
-                <div className="profile-copy">
-                  <p className="profile-name">{siteName}</p>
-                  <p className="profile-subtitle">阈限手记：随笔、日记、旅行与一些突然冒出来的小想法。</p>
-                </div>
-                <div className="profile-social" aria-label="社交链接">
-                  {socialLinks.map((item) => (
-                    <a href={item.href} target="_blank" rel="me noopener noreferrer" aria-label={item.label} title={item.label} key={item.id}>
-                      <SocialIcon id={item.id} />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <SidebarProfile />
           </div>
 
           <div className="sidebar-scroll">

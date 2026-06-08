@@ -1,4 +1,5 @@
 import { CalendarDays } from "lucide-react";
+import { AuthorBadge } from "@/components/author-badge";
 import { formatDate, getSection } from "@/lib/site";
 import type { Note } from "@/lib/types";
 
@@ -12,10 +13,13 @@ export function NoteCard({ note }: { note: Note }) {
           <span className="section-pill">
             {section?.mark} {section?.label || note.section}
           </span>
-          <time dateTime={note.publishedAt}>
-            <CalendarDays size={15} />
-            {formatDate(note.publishedAt)}
-          </time>
+          <span className="note-card__byline">
+            <AuthorBadge profile={note.authorProfile} compact linked={false} />
+            <time dateTime={note.publishedAt}>
+              <CalendarDays size={15} />
+              {formatDate(note.publishedAt)}
+            </time>
+          </span>
         </div>
         <h2>{note.title}</h2>
         <p>{note.summary}</p>
