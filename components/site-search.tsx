@@ -62,7 +62,10 @@ export function SiteSearch({ entries }: SiteSearchProps) {
     };
   }, []);
 
-  const showResults = open && query.trim().length > 0;
+  const hasQuery = query.trim().length > 0;
+  const suggestions = entries.slice(0, 5);
+  const visibleEntries = hasQuery ? results : suggestions;
+  const showResults = open && entries.length > 0;
 
   return (
     <label className="site-search" ref={fieldRef}>
@@ -99,8 +102,12 @@ export function SiteSearch({ entries }: SiteSearchProps) {
       ) : null}
       {showResults ? (
         <div className="site-search__results" id={resultsId} role="listbox">
-          {results.length > 0 ? (
-            results.map((entry) => (
+          <div className="site-search__panel-header">
+            <span>{hasQuery ? "搜索结果" : "最近记录"}</span>
+            {hasQuery ? <small>{results.length} 条</small> : null}
+          </div>
+          {visibleEntries.length > 0 ? (
+            visibleEntries.map((entry) => (
               <a className="site-search__result" href={entry.url} key={entry.url} role="option">
                 <span className="site-search__section">{entry.section}</span>
                 <strong>{entry.title}</strong>

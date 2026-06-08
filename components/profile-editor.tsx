@@ -1,9 +1,10 @@
 "use client";
 
-import { LogOut, Save, Trash2, UploadCloud } from "lucide-react";
+import { Copy, ExternalLink, Eye, LogOut, Save, Trash2, UploadCloud } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { profileChangedEvent, useCurrentProfile } from "@/components/profile-client";
-import { defaultProfile, displayProfile, socialPlatforms } from "@/lib/profile";
+import { SocialIcon } from "@/components/social-icon";
+import { defaultProfile, displayProfile, socialPlatforms, visibleSocialLinks } from "@/lib/profile";
 import { getBrowserSupabase, isBrowserSupabaseConfigured } from "@/lib/supabase-browser";
 import type { ProfileSocialLinks } from "@/lib/types";
 
@@ -125,6 +126,12 @@ export function ProfileEditor() {
     window.location.href = "/";
   }
 
+  async function copyPublicLink() {
+    const link = `${window.location.origin}/u/${displayProfile(profile).id}`;
+    await navigator.clipboard?.writeText(link);
+    setMessage("公开主页链接已复制。");
+  }
+
   async function deleteAccount() {
     if (!window.confirm("确认注销账号？注销后历史文章作者会显示为“已注销账号”。")) return;
     setBusy(true);
@@ -192,6 +199,7 @@ export function ProfileEditor() {
   }
 
   const display = displayProfile(profile);
+  const previewLinks = visibleSocialLinks(draft.socialLinks);
 
   return (
     <section className="profile-editor">
@@ -204,6 +212,25 @@ export function ProfileEditor() {
           {draft.statusText || "写下一点状态"}
         </p>
         <p>{draft.bio || "一句话介绍会显示在这里。"}</p>
+        {previewLinks.length > 0 ? (
+          <div className="profile-editor__social-preview" aria-label="已填写的社交链接预览">
+            {previewLinks.map((item) => (
+              <span key={item.id} title={item.label}>
+                <SocialIcon id={item.id} />
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div className="profile-editor__mini-actions">
+          <a className="secondary-link" href={`/u/${display.id}`}>
+            <Eye size={17} />
+            公开主页
+          </a>
+          <button className="secondary-link" type="button" onClick={copyPublicLink}>
+            <Copy size={17} />
+            复制链接
+          </button>
+        </div>
       </div>
 
       <div className="profile-editor__forms">
@@ -249,6 +276,10 @@ export function ProfileEditor() {
               </label>
             ))}
           </div>
+          <p className="profile-form__hint">
+            <ExternalLink size={15} />
+            只会展示已填写且格式正确的链接。
+          </p>
           <div className="profile-editor__actions">
             <button className="primary-link" type="submit" disabled={busy}>
               <Save size={18} />

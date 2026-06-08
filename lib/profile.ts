@@ -8,6 +8,11 @@ export const socialPlatforms: Array<{
   placeholder: string;
 }> = [
   {
+    id: "website",
+    label: "个人网站",
+    placeholder: "https://leftjun.com"
+  },
+  {
     id: "github",
     label: "GitHub",
     placeholder: "https://github.com/Left-Jun"
@@ -26,6 +31,16 @@ export const socialPlatforms: Array<{
     id: "xiaohongshu",
     label: "小红书",
     placeholder: "https://www.xiaohongshu.com/user/profile/..."
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    placeholder: "https://www.instagram.com/..."
+  },
+  {
+    id: "weibo",
+    label: "微博",
+    placeholder: "https://weibo.com/..."
   }
 ];
 
@@ -38,6 +53,7 @@ export const defaultProfile: UserProfile = {
   statusText: "动态站接入中",
   bio: "阈限手记：随笔、日记、旅行与一些突然冒出来的小想法。",
   socialLinks: {
+    website: "https://leftjun.com",
     github: "https://github.com/Left-Jun",
     youtube: "https://www.youtube.com/@Limenaut",
     bilibili: "https://space.bilibili.com/498452594?spm_id_from=333.1007.0.0",

@@ -8,6 +8,7 @@
 - Supabase Postgres
 - Supabase Storage
 - Supabase Auth 个人资料
+- PWA 安装壳（Android/iOS 初版）
 - 轻量后台写入接口
 - v1 评论入口关闭，评论表保留给后续审核后台
 
@@ -35,6 +36,17 @@ git push
 接入 Supabase 后，线上发布会改为写数据库和 Storage。
 
 `/login`、`/register` 和 `/me` 使用 Supabase Auth。登录用户可以编辑昵称、头像、状态、一句话介绍和社交链接；左侧栏、右上角头像和文章作者信息会读取同一套 profile 数据。
+
+## 移动端 App 初版
+
+当前先以 PWA 方式做 Android/iOS 初版，不新增原生工程：
+
+- `public/manifest.webmanifest` 使用现有真实品牌图片。
+- `public/sw.js` 缓存站点外壳、品牌图和头像，用于基础离线回退。
+- `components/pwa-client.tsx` 注册 Service Worker，并在浏览器支持时显示安装入口。
+- `app/layout.tsx` 已加入 manifest、apple web app 和移动端 viewport 元信息。
+
+后续如果要上应用商店，可以在这个基础上接 Capacitor，把同一套 Next.js 站点封装成 Android/iOS 原生壳。
 
 ## Supabase 环境变量
 

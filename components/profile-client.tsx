@@ -77,12 +77,13 @@ export function SidebarProfile() {
   const { profile } = useCurrentProfile();
   const display = displayProfile(profile);
   const links = visibleSocialLinks(display.socialLinks);
+  const profileHref = display.id === defaultProfile.id ? `/u/${defaultProfile.id}` : "/me";
 
   return (
     <div className="profile-card">
       <div className="profile">
         <div className="profile-head">
-          <a className="avatar-wrap" href={display.id === defaultProfile.id ? "/" : "/me"} aria-label="打开个人主页">
+          <a className="avatar-wrap" href={profileHref} aria-label="打开个人主页">
             <img className={display.deletedAt ? "avatar is-deleted" : "avatar"} src={display.avatarUrl || "/img/avatar.jpg"} alt="" />
             <span className="avatar-status" tabIndex={0} aria-label={display.statusText || "个人状态"}>
               <span aria-hidden="true">{display.statusEmoji || "✦"}</span>

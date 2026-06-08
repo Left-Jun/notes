@@ -33,10 +33,12 @@ export function SidebarCollapseButton() {
   }, []);
 
   function toggleCollapsed() {
-    const next = !collapsed;
-    window.localStorage.setItem(storageKey, next ? "1" : "0");
-    document.body.classList.toggle("notes-sidebar-collapsed", next);
-    setCollapsed(next);
+    setCollapsed((current) => {
+      const next = !current;
+      window.localStorage.setItem(storageKey, next ? "1" : "0");
+      document.body.classList.toggle("notes-sidebar-collapsed", next);
+      return next;
+    });
   }
 
   return (

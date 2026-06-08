@@ -1,0 +1,27 @@
+{
+  "name": "limenauts 阈限手记",
+  "short_name": "阈限手记",
+  "description": "随笔、日记、旅行和心情记录。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8f5ee",
+  "theme_color": "#18746f",
+  "categories": ["lifestyle", "productivity", "social"],
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/brand/lj-mark.png",
+      "sizes": "4096x3855",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/limenauts_horizontal_transparent.png",
+      "sizes": "2048x684",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

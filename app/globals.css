@@ -22,7 +22,9 @@
   --radius-lg: 20px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --motion: 0.16s;
+  --motion: 0.18s;
+  --motion-medium: 0.34s;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root[data-theme="dark"] {
@@ -102,6 +104,49 @@ img {
   background: color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
+@keyframes notes-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notes-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes notes-soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 10px 26px rgba(38, 62, 57, 0.18);
+  }
+  50% {
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 24%, transparent);
+  }
+}
+
+@keyframes notes-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 a,
 button {
   -webkit-tap-highlight-color: transparent;
@@ -160,7 +205,8 @@ textarea:focus-visible {
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: 12px 0 34px rgba(38, 62, 57, 0.08);
   backdrop-filter: blur(12px) saturate(1.12);
-  transition: width 0.28s ease, box-shadow var(--motion) ease, background var(--motion) ease;
+  animation: notes-fade-up 0.42s var(--ease) both;
+  transition: width var(--motion-medium) var(--ease), box-shadow var(--motion) ease, background var(--motion) ease;
 }
 
 .sidebar-top {
@@ -296,6 +342,7 @@ textarea:focus-visible {
   cursor: default;
   color: var(--accent-strong);
   box-shadow: 0 10px 26px rgba(38, 62, 57, 0.18);
+  animation: notes-soft-pulse 4.8s ease-in-out infinite;
 }
 
 .status-popover {
@@ -376,6 +423,19 @@ textarea:focus-visible {
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   transform: translateY(-2px);
   box-shadow: var(--shadow-soft);
+}
+
+.profile-social a svg,
+.public-profile__social a svg,
+.profile-editor__social-preview svg {
+  transition: transform var(--motion) var(--ease);
+}
+
+.profile-social a:hover svg,
+.profile-social a:focus-visible svg,
+.public-profile__social a:hover svg,
+.public-profile__social a:focus-visible svg {
+  transform: scale(1.08);
 }
 
 .main-nav {
@@ -575,6 +635,7 @@ textarea:focus-visible {
   background: color-mix(in srgb, var(--surface) 84%, transparent);
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px) saturate(1.12);
+  animation: notes-panel-in 0.44s var(--ease) both;
 }
 
 .site-toolbar__copy {
@@ -769,6 +830,23 @@ textarea:focus-visible {
   overscroll-behavior: contain;
   scrollbar-color: color-mix(in srgb, var(--accent) 34%, transparent) transparent;
   scrollbar-width: thin;
+  animation: notes-panel-in 0.18s var(--ease) both;
+}
+
+.site-search__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px 7px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.site-search__panel-header small {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
 }
 
 .site-search__result,
@@ -851,6 +929,18 @@ textarea:focus-visible {
   align-content: center;
   justify-items: start;
   padding: 36px 42px;
+}
+
+.site-main > :is(.hero-panel, .section-grid, .mood-bridge, .content-section, .list-hero, .article-panel, .comment-panel, .studio-panel, .auth-panel, .profile-editor, .public-profile, .mood-layout, .mood-overview-grid, .mood-square-grid, .monster-layout, .stats-layout) {
+  animation: notes-fade-up 0.48s var(--ease) both;
+}
+
+.site-main > :is(.section-grid, .mood-bridge, .content-section):nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.site-main > :is(.mood-bridge, .content-section):nth-child(3) {
+  animation-delay: 0.08s;
 }
 
 .eyebrow {
@@ -936,6 +1026,8 @@ p {
 }
 
 .section-card {
+  position: relative;
+  overflow: hidden;
   display: grid;
   gap: 6px;
   min-height: 136px;
@@ -945,6 +1037,23 @@ p {
   background: var(--surface-strong);
   box-shadow: 0 8px 20px rgba(38, 62, 57, 0.035);
   transition: transform var(--motion) ease, border-color var(--motion) ease, box-shadow var(--motion) ease, background var(--motion) ease;
+  animation: notes-fade-up 0.42s var(--ease) both;
+}
+
+.section-card::after,
+.note-card::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--warm));
+  opacity: 0;
+  transform: scaleX(0.42);
+  transform-origin: left center;
+  transition: opacity var(--motion) ease, transform var(--motion-medium) var(--ease);
 }
 
 .section-card:hover,
@@ -953,6 +1062,14 @@ p {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
   background: color-mix(in srgb, var(--accent) 5%, var(--surface-strong));
   box-shadow: var(--shadow-soft);
+}
+
+.section-card:hover::after,
+.section-card:focus-visible::after,
+.note-card:hover::after,
+.note-card:focus-within::after {
+  opacity: 0.86;
+  transform: scaleX(1);
 }
 
 .section-icon {
@@ -1667,10 +1784,21 @@ p {
 }
 
 .note-card {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-strong);
   transition: transform var(--motion) ease, box-shadow var(--motion) ease, border-color var(--motion) ease, background var(--motion) ease;
+  animation: notes-fade-up 0.42s var(--ease) both;
+}
+
+.note-card:nth-child(2) {
+  animation-delay: 0.03s;
+}
+
+.note-card:nth-child(3) {
+  animation-delay: 0.06s;
 }
 
 .note-card:hover,
@@ -2183,6 +2311,46 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
+.profile-editor__social-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.profile-editor__social-preview span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface-strong) 86%, transparent);
+  color: var(--muted);
+}
+
+.profile-editor__mini-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.profile-editor__mini-actions .secondary-link {
+  min-height: 38px;
+  padding-inline: 14px;
+}
+
+.profile-form__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: -2px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 760;
+}
+
 .profile-editor__actions,
 .public-profile__social {
   display: flex;
@@ -2296,6 +2464,71 @@ textarea {
 .auth-form__actions .primary-link,
 .auth-form__actions .secondary-link {
   min-height: 42px;
+}
+
+.install-toast {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 320;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  width: min(360px, calc(100vw - 28px));
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-strong) 92%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px) saturate(1.14);
+  animation: notes-toast-in 0.24s var(--ease) both;
+}
+
+.install-toast div {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.install-toast strong {
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.install-toast span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.install-toast button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 850;
+  transition: transform var(--motion) var(--ease), box-shadow var(--motion) ease;
+}
+
+.install-toast button:hover,
+.install-toast button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(24, 116, 111, 0.14);
+}
+
+.install-toast .install-toast__close {
+  width: 36px;
+  padding: 0;
+  background: var(--surface-strong);
+  color: var(--muted);
 }
 
 .site-footer {
@@ -2929,6 +3162,13 @@ textarea {
     transform: translateX(-50%);
   }
 
+  .install-toast {
+    right: 12px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    width: calc(100vw - 24px);
+  }
+
   .mobile-bottom-nav a {
     min-width: 0;
     min-height: 48px;
@@ -3043,5 +3283,6 @@ textarea {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
   }
 }

@@ -1,6 +1,6 @@
 export type NoteStatus = "published" | "draft";
 export type MoodPrivacy = "private" | "anonymous" | "summary";
-export type SocialPlatform = "github" | "youtube" | "bilibili" | "xiaohongshu";
+export type SocialPlatform = "website" | "github" | "youtube" | "bilibili" | "xiaohongshu" | "instagram" | "weibo";
 
 export type ProfileSocialLinks = Partial<Record<SocialPlatform, string>>;
 
