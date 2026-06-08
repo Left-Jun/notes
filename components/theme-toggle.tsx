@@ -23,10 +23,12 @@ export function ThemeToggle() {
     window.localStorage.setItem(storageKey, nextTheme);
   }
 
+  const label = theme === "dark" ? "切换到亮色主题" : "切换到暗色主题";
+
   return (
-    <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label="切换深浅色">
-      {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
-      <span>主题</span>
+    <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={label} title={label}>
+      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+      <span>{theme === "dark" ? "亮色" : "暗色"}</span>
     </button>
   );
 }

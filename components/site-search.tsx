@@ -78,11 +78,12 @@ export function SiteSearch({ entries }: SiteSearchProps) {
       <input
         ref={inputRef}
         type="search"
-        placeholder="搜索日记、旅行、灵感..."
+        placeholder={entries.length > 0 ? "搜索日记、旅行、灵感..." : "当前页暂无搜索索引"}
         autoComplete="off"
         spellCheck={false}
         aria-controls={resultsId}
         aria-expanded={showResults}
+        disabled={entries.length === 0}
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
