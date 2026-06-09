@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn } from "lucide-react";
+import { LogIn, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SocialIcon } from "@/components/social-icon";
 import { defaultProfile, displayProfile, visibleSocialLinks } from "@/lib/profile";
@@ -129,6 +129,27 @@ export function AuthQuickEntry() {
   return (
     <a className="toolbar-avatar-link" href="/me" aria-label="打开个人主页" title="打开个人主页">
       <img className={display.deletedAt ? "is-deleted" : ""} src={display.avatarUrl || "/img/avatar.jpg"} alt={display.displayName} />
+    </a>
+  );
+}
+
+export function MobileProfileNavItem({ active = false }: { active?: boolean }) {
+  const { signedIn, profile } = useCurrentProfile();
+  const display = displayProfile(profile);
+
+  if (!isBrowserSupabaseConfigured() || !signedIn) {
+    return (
+      <a className={active ? "is-active" : ""} href="/login" aria-current={active ? "page" : undefined}>
+        <LogIn size={17} />
+        <span>登录</span>
+      </a>
+    );
+  }
+
+  return (
+    <a className={active ? "is-active" : ""} href="/me" aria-current={active ? "page" : undefined}>
+      {display.avatarUrl ? <img src={display.avatarUrl} alt="" aria-hidden="true" /> : <UserRound size={17} />}
+      <span>我的</span>
     </a>
   );
 }

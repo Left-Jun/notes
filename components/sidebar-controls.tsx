@@ -76,33 +76,3 @@ export function MobileNavController() {
 
   return null;
 }
-
-export function SidebarWheelController() {
-  useEffect(() => {
-    const sidebar = document.querySelector<HTMLElement>(".site-sidebar");
-    const scrollArea = document.querySelector<HTMLElement>(".sidebar-scroll");
-    const desktop = window.matchMedia(desktopQuery);
-
-    if (!sidebar || !scrollArea) return;
-    const scroller = scrollArea;
-
-    function onWheel(event: WheelEvent) {
-      if (!desktop.matches || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-      if (scroller.scrollHeight <= scroller.clientHeight) return;
-
-      const before = scroller.scrollTop;
-      scroller.scrollTop += event.deltaY;
-
-      if (scroller.scrollTop !== before) {
-        event.preventDefault();
-      }
-    }
-
-    sidebar.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      sidebar.removeEventListener("wheel", onWheel);
-    };
-  }, []);
-
-  return null;
-}
