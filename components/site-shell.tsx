@@ -1,4 +1,4 @@
-import { Heart, Home, LayoutDashboard } from "lucide-react";
+import { Heart, Home, LayoutDashboard, MessageCircle, Plus } from "lucide-react";
 import { AuthQuickEntry, MobileProfileNavItem, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
@@ -50,10 +50,9 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
     }
   ];
   const mobileNav = [
-    { id: "home", href: "/", label: "首页", mark: sections.find((section) => section.id === "home")?.mark || "⌁" },
-    { id: "diary", href: "/category/diary", label: "日记", mark: sections.find((section) => section.id === "diary")?.mark || "●" },
-    { id: "mood", href: "/mood", label: "心情", icon: <Heart size={17} /> },
-    { id: "all", href: "/category/all", label: "全部", mark: sections.find((section) => section.id === "all")?.mark || "◼" }
+    { id: "home", href: "/", label: "主页", icon: <Home size={17} /> },
+    { id: "square", href: "/square", label: "广场", icon: <MessageCircle size={17} /> },
+    { id: "mood", href: "/mood", label: "情绪", icon: <Heart size={17} /> }
   ];
 
   return (
@@ -134,14 +133,28 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
         </main>
       </div>
       <nav className="mobile-bottom-nav" aria-label="移动端主导航">
-        {mobileNav.map((section) => (
+        {mobileNav.slice(0, 2).map((section) => (
           <a
             className={active === section.id ? "is-active" : ""}
             href={section.href}
             aria-current={active === section.id ? "page" : undefined}
             key={section.id}
           >
-            <span aria-hidden="true">{section.icon || section.mark}</span>
+            <span aria-hidden="true">{section.icon}</span>
+            <span>{section.label}</span>
+          </a>
+        ))}
+        <a className={active === "admin" ? "mobile-create-link is-active" : "mobile-create-link"} href="/admin" aria-label="写新记录" aria-current={active === "admin" ? "page" : undefined}>
+          <Plus size={24} aria-hidden="true" />
+        </a>
+        {mobileNav.slice(2).map((section) => (
+          <a
+            className={active === section.id ? "is-active" : ""}
+            href={section.href}
+            aria-current={active === section.id ? "page" : undefined}
+            key={section.id}
+          >
+            <span aria-hidden="true">{section.icon}</span>
             <span>{section.label}</span>
           </a>
         ))}

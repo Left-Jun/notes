@@ -1,4 +1,4 @@
-import { Archive, BookOpen, Edit3, Gamepad2, Heart, MessageCircle } from "lucide-react";
+import { Archive, BookOpen, Gamepad2, Heart, MessageCircle } from "lucide-react";
 import { NoteCard } from "@/components/note-card";
 import { SiteShell } from "@/components/site-shell";
 import { buildMoodOverview, getMoodEntries, getMoodMonster, getPublicMoodEntries } from "@/lib/mood";
@@ -36,26 +36,22 @@ export default async function HomePage() {
             <Archive size={18} />
             全部记录
           </a>
-          <a className="secondary-link" href="/admin">
-            <Edit3 size={18} />
-            写新记录
-          </a>
         </div>
       </section>
 
-      <section className="section-grid" aria-label="内容分类">
-        {sections
-          .filter((section) => section.id !== "home" && section.id !== "about")
-          .map((section) => (
-            <a className="section-card" href={`/category/${section.id}`} key={section.id}>
-              <span className="section-icon" aria-hidden="true">
-                {section.mark}
-              </span>
-              <strong>{section.label}</strong>
-              <small>{section.description}</small>
-              <em>{section.id === "all" ? notes.length : stats[section.id] || 0} 篇</em>
-            </a>
+      <section className="content-section" id="recent">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Recent Notes</p>
+            <h2>最近记录</h2>
+          </div>
+          <a href="/category/all">全部</a>
+        </div>
+        <div className="note-list">
+          {recent.map((note) => (
+            <NoteCard note={note} key={note.slug} />
           ))}
+        </div>
       </section>
 
       <section className="mood-bridge" aria-label="心情小径入口">
@@ -93,19 +89,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="content-section" id="recent">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Recent Notes</p>
-            <h2>最近记录</h2>
-          </div>
-          <a href="/category/all">全部</a>
-        </div>
-        <div className="note-list">
-          {recent.map((note) => (
-            <NoteCard note={note} key={note.slug} />
+      <section className="section-grid" aria-label="内容分类">
+        {sections
+          .filter((section) => section.id !== "home" && section.id !== "about")
+          .map((section) => (
+            <a className="section-card" href={`/category/${section.id}`} key={section.id}>
+              <span className="section-icon" aria-hidden="true">
+                {section.mark}
+              </span>
+              <strong>{section.label}</strong>
+              <small>{section.description}</small>
+              <em>{section.id === "all" ? notes.length : stats[section.id] || 0} 篇</em>
+            </a>
           ))}
-        </div>
       </section>
     </SiteShell>
   );

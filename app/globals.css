@@ -2909,9 +2909,9 @@ textarea {
 
   .sidebar-top {
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 46px;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     padding: 0;
     border: 0;
   }
@@ -2922,13 +2922,17 @@ textarea {
   }
 
   .sidebar-brand {
-    --brand-mark-size: 42px;
+    --brand-mark-size: 44px;
+    grid-column: 2;
+    grid-row: 1;
     position: static;
     width: var(--brand-mark-size);
-    min-height: 42px;
-    height: 42px;
-    margin-left: 0;
-    justify-content: flex-start;
+    min-height: 44px;
+    height: 44px;
+    margin-left: auto;
+    justify-content: flex-end;
+    align-self: center;
+    justify-self: end;
     pointer-events: auto;
   }
 
@@ -2942,8 +2946,11 @@ textarea {
   }
 
   .profile-card {
+    grid-column: 1;
+    grid-row: 1;
     padding: 0;
     min-height: 0;
+    min-width: 0;
     overflow: visible;
   }
 
@@ -2951,7 +2958,7 @@ textarea {
     grid-template-columns: 54px minmax(0, 1fr);
     align-items: center;
     column-gap: 10px;
-    row-gap: 6px;
+    row-gap: 7px;
   }
 
   .profile-head {
@@ -2985,8 +2992,10 @@ textarea {
   }
 
   .profile-social {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 2;
+    justify-self: start;
+    max-width: 100%;
     flex-wrap: nowrap;
     gap: 6px;
     overflow-x: auto;
@@ -3292,6 +3301,28 @@ textarea {
   .mobile-bottom-nav a:focus-visible {
     background: color-mix(in srgb, var(--accent) 12%, var(--surface-strong));
     color: var(--accent-strong);
+  }
+
+  .mobile-bottom-nav .mobile-create-link {
+    align-self: center;
+    justify-self: center;
+    width: 48px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--accent) 54%, transparent);
+    border-radius: 18px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #ffffff 8%), var(--accent-strong));
+    color: #fff;
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 26%, transparent);
+  }
+
+  .mobile-bottom-nav .mobile-create-link:hover,
+  .mobile-bottom-nav .mobile-create-link:focus-visible,
+  .mobile-bottom-nav .mobile-create-link.is-active {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--accent-strong) 72%, #ffffff 18%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 84%, #ffffff 16%), var(--accent-strong));
+    box-shadow: 0 16px 34px color-mix(in srgb, var(--accent) 32%, transparent);
   }
 }
 
