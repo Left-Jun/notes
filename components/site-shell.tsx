@@ -1,6 +1,6 @@
 import { Archive, Gamepad2, Heart, Home, LayoutDashboard, LineChart, MessageCircle, PenLine, Sparkles } from "lucide-react";
 import { AuthQuickEntry, SidebarProfile } from "@/components/profile-client";
-import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
+import { MobileNavController, SidebarCollapseButton, SidebarWheelController } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { sections } from "@/lib/site";
@@ -47,6 +47,7 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
   return (
     <>
       <MobileNavController />
+      <SidebarWheelController />
       <div className="site-shell">
         <aside className="site-sidebar">
           <div className="sidebar-top">

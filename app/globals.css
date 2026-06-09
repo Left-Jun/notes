@@ -194,7 +194,7 @@ textarea:focus-visible {
   width: var(--sidebar-width);
   height: 100svh;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -219,14 +219,16 @@ textarea:focus-visible {
 }
 
 .sidebar-scroll {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   display: grid;
   align-content: start;
   gap: 14px;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
-  padding: 14px 12px 16px;
+  padding: 14px 12px 22px;
+  scroll-padding-bottom: 22px;
   scrollbar-color: color-mix(in srgb, var(--accent) 34%, transparent) transparent;
   scrollbar-width: thin;
   transition: padding 0.28s ease;
@@ -282,7 +284,7 @@ textarea:focus-visible {
   border: 0;
   border-radius: 0;
   background: transparent;
-  overflow: hidden;
+  overflow: visible;
   max-height: 420px;
   transition: opacity 0.22s ease, transform 0.28s ease, max-height 0.28s ease;
 }
@@ -300,6 +302,7 @@ textarea:focus-visible {
 
 .avatar-wrap {
   position: relative;
+  z-index: 2;
   width: 96px;
   height: 96px;
   border-radius: 28px;
@@ -347,12 +350,13 @@ textarea:focus-visible {
 
 .status-popover {
   position: absolute;
-  top: calc(100% + 10px);
-  right: -54px;
-  z-index: 5;
+  top: 50%;
+  left: calc(100% + 12px);
+  right: auto;
+  z-index: 190;
   display: grid;
   gap: 2px;
-  width: 206px;
+  width: 218px;
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -360,7 +364,7 @@ textarea:focus-visible {
   color: var(--text);
   box-shadow: var(--shadow);
   opacity: 0;
-  transform: translateY(6px);
+  transform: translate(-6px, -50%);
   pointer-events: none;
   transition: opacity var(--motion) ease, transform var(--motion) ease;
 }
@@ -372,7 +376,7 @@ textarea:focus-visible {
 .avatar-status:hover .status-popover,
 .avatar-status:focus-visible .status-popover {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(0, -50%);
 }
 
 .profile-name {
@@ -2557,7 +2561,7 @@ textarea {
   }
 
   body.notes-sidebar-collapsed .sidebar-scroll {
-    padding: 10px 8px;
+    padding: 10px 8px 18px;
   }
 
   body.notes-sidebar-collapsed .sidebar-bottom {
@@ -2585,6 +2589,7 @@ textarea {
   body.notes-sidebar-collapsed .sidebar-status {
     max-height: 0;
     opacity: 0;
+    overflow: hidden;
     pointer-events: none;
     transform: translateX(-8px);
     visibility: hidden;
@@ -2676,7 +2681,7 @@ textarea {
     height: auto;
     min-height: 0;
     max-height: none;
-    overflow: visible;
+    overflow: hidden;
     display: grid;
     grid-template-columns: 1fr;
     gap: 14px;
@@ -2758,6 +2763,11 @@ textarea {
 
   .site-toolbar__copy {
     display: none;
+  }
+
+  .site-search__results {
+    left: 0;
+    right: auto;
   }
 
   .section-grid {
@@ -2875,6 +2885,7 @@ textarea {
   .profile-card {
     padding: 0;
     min-height: 0;
+    overflow: visible;
   }
 
   .profile {
@@ -2932,10 +2943,16 @@ textarea {
 
   .status-popover {
     top: auto;
-    left: auto;
-    right: 0;
+    left: 0;
+    right: auto;
     bottom: calc(100% + 10px);
     width: min(230px, calc(100vw - 42px));
+    transform: translateY(6px);
+  }
+
+  .avatar-status:hover .status-popover,
+  .avatar-status:focus-visible .status-popover {
+    transform: translateY(0);
   }
 
   .main-nav {

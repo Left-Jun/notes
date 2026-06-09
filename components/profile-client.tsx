@@ -128,8 +128,7 @@ export function AuthQuickEntry() {
 
   return (
     <a className="toolbar-avatar-link" href="/me" aria-label="打开个人主页" title="打开个人主页">
-      <img className={display.deletedAt ? "is-deleted" : ""} src={display.avatarUrl || "/img/avatar.jpg"} alt="" aria-hidden="true" />
-      <span>{display.displayName}</span>
+      <img className={display.deletedAt ? "is-deleted" : ""} src={display.avatarUrl || "/img/avatar.jpg"} alt={display.displayName} />
     </a>
   );
 }
