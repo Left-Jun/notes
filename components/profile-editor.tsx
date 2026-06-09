@@ -261,7 +261,7 @@ export function ProfileEditor() {
             </label>
           </div>
           <label>
-            <span>一句话介绍</span>
+            <span>个人签名</span>
             <textarea value={draft.bio} onChange={(event) => updateDraft("bio", event.target.value)} rows={3} />
           </label>
           <div className="profile-social-fields">

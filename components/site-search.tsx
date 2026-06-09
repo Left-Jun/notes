@@ -74,7 +74,7 @@ export function SiteSearch({ entries }: SiteSearchProps) {
       <input
         ref={inputRef}
         type="search"
-        placeholder={entries.length > 0 ? "搜索日记、旅行、灵感..." : "当前页暂无搜索索引"}
+        placeholder={entries.length > 0 ? "搜索随笔、日记、标签..." : "当前页暂无搜索索引"}
         autoComplete="off"
         spellCheck={false}
         aria-controls={resultsId}

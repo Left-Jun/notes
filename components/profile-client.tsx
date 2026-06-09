@@ -89,14 +89,12 @@ export function SidebarProfile() {
               <span aria-hidden="true">{display.statusEmoji || "✦"}</span>
               <span className="status-popover" role="tooltip">
                 <strong>{display.statusText || defaultProfile.statusText}</strong>
-                <small>{display.bio || defaultProfile.bio}</small>
               </span>
             </span>
           </a>
         </div>
         <div className="profile-copy">
           <p className="profile-name">{display.displayName}</p>
-          {display.statusText ? <p className="profile-role">{display.statusText}</p> : null}
           <p className="profile-subtitle">{display.bio || defaultProfile.bio}</p>
         </div>
         {links.length > 0 ? (

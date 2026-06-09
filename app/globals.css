@@ -3784,7 +3784,14 @@ textarea {
   }
 
   .profile-subtitle {
-    display: none;
+    margin-top: 2px;
+    display: block;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.76rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .profile-name {
@@ -3792,6 +3799,7 @@ textarea {
   }
 
   .profile-role {
+    display: none;
     margin-top: 2px;
     font-size: 0.78rem;
     overflow: hidden;
@@ -4360,7 +4368,8 @@ textarea {
   }
 
   .profile-subtitle {
-    display: none;
+    display: block;
+    font-size: 0.74rem;
   }
 
   .hero-panel h1,

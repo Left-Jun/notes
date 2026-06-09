@@ -3,6 +3,7 @@ import { getLocalComments, getLocalNotes } from "@/lib/local-store";
 import { defaultProfile } from "@/lib/profile";
 import { listProfilesByIds, mapProfile, type ProfileRow } from "@/lib/profiles";
 import { seedNotes } from "@/lib/seed-notes";
+import { normalizeSectionId, sectionAliasTag } from "@/lib/site";
 import { getPublicSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import type { MoodPrivacy, Note, NoteComment, NoteStatus } from "@/lib/types";
 
@@ -40,14 +41,17 @@ type CommentRow = {
 };
 
 function mapNote(row: NoteRow): Note {
+  const aliasTag = sectionAliasTag(row.section);
+  const tags = row.tags || [];
+
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     summary: row.summary || "",
     content: row.content_md,
-    section: row.section,
-    tags: row.tags || [],
+    section: normalizeSectionId(row.section),
+    tags: aliasTag && !tags.includes(aliasTag) ? [aliasTag, ...tags] : tags,
     mood: row.mood,
     moodIntensity: row.mood_intensity,
     moodPrivacy: row.mood_privacy,
@@ -86,6 +90,23 @@ function mergeNotes(primary: Note[], fallback: Note[]) {
   });
 }
 
+function normalizeNote(note: Note): Note {
+  const aliasTag = sectionAliasTag(note.section);
+  const tags = note.tags || [];
+
+  return {
+    ...note,
+    section: normalizeSectionId(note.section),
+    tags: aliasTag && !tags.includes(aliasTag) ? [aliasTag, ...tags] : tags
+  };
+}
+
+function matchesOptions(note: Note, options: { section?: string; status?: NoteStatus }) {
+  const normalizedSection = options.section ? normalizeSectionId(options.section) : undefined;
+
+  return (normalizedSection ? note.section === normalizedSection : true) && (options.status ? note.status === options.status : true);
+}
+
 async function attachLocalAuthorProfiles(notes: Note[]) {
   const profileIds = notes.map((note) => note.authorProfileId).filter((id): id is string => Boolean(id));
   const profiles = await listProfilesByIds(profileIds);
@@ -100,8 +121,8 @@ export async function getNotes(options: { section?: string; status?: NoteStatus 
   if (!isSupabaseConfigured()) {
     const localNotes = await getLocalNotes();
     const mergedNotes = mergeNotes(localNotes, seedNotes)
-      .filter((note) => (options.section ? note.section === options.section : true))
-      .filter((note) => (options.status ? note.status === options.status : true))
+      .map(normalizeNote)
+      .filter((note) => matchesOptions(note, options))
       .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     return attachLocalAuthorProfiles(mergedNotes);
@@ -117,10 +138,6 @@ export async function getNotes(options: { section?: string; status?: NoteStatus 
     query = query.eq("status", options.status);
   }
 
-  if (options.section) {
-    query = query.eq("section", options.section);
-  }
-
   const { data, error } = await query;
 
   if (error) {
@@ -129,15 +146,14 @@ export async function getNotes(options: { section?: string; status?: NoteStatus 
     if (options.status) {
       fallbackQuery = fallbackQuery.eq("status", options.status);
     }
-    if (options.section) {
-      fallbackQuery = fallbackQuery.eq("section", options.section);
-    }
     const { data: fallbackData, error: fallbackError } = await fallbackQuery;
-    if (fallbackError) return seedNotes.map((note) => ({ ...note, authorProfile: defaultProfile }));
-    return (fallbackData || []).map((row) => mapNote(row as NoteRow));
+    if (fallbackError) {
+      return seedNotes.map((note) => normalizeNote({ ...note, authorProfile: defaultProfile })).filter((note) => matchesOptions(note, options));
+    }
+    return (fallbackData || []).map((row) => mapNote(row as NoteRow)).filter((note) => matchesOptions(note, options));
   }
 
-  return (data || []).map((row) => mapNote(row as NoteRow));
+  return (data || []).map((row) => mapNote(row as NoteRow)).filter((note) => matchesOptions(note, options));
 }
 
 export async function getNoteBySlug(slug: string) {
@@ -145,7 +161,7 @@ export async function getNoteBySlug(slug: string) {
     const localNotes = await getLocalNotes();
     const note = localNotes.find((item) => item.slug === slug) || seedNotes.find((item) => item.slug === slug) || null;
     if (!note) return null;
-    return (await attachLocalAuthorProfiles([note]))[0] || null;
+    return (await attachLocalAuthorProfiles([normalizeNote(note)]))[0] || null;
   }
 
   const supabase = getPublicSupabase();
@@ -165,7 +181,7 @@ export async function getNoteBySlug(slug: string) {
       .single();
     if (!fallbackError && fallbackData) return mapNote(fallbackData as NoteRow);
     const note = seedNotes.find((item) => item.slug === slug) || null;
-    return note ? { ...note, authorProfile: defaultProfile } : null;
+    return note ? normalizeNote({ ...note, authorProfile: defaultProfile }) : null;
   }
 
   return mapNote(data as NoteRow);
@@ -198,7 +214,8 @@ export async function getComments(noteId: string) {
 
 export function getSectionStats(notes: Note[]) {
   return notes.reduce<Record<string, number>>((acc, note) => {
-    acc[note.section] = (acc[note.section] || 0) + 1;
+    const section = normalizeSectionId(note.section);
+    acc[section] = (acc[section] || 0) + 1;
     return acc;
   }, {});
 }

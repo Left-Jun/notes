@@ -21,7 +21,7 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
   const searchEntries = buildSearchEntries(await getNotes({ status: "published" }));
 
   return (
-    <SiteShell active={note.section} searchEntries={searchEntries}>
+    <SiteShell active={section?.id || note.section} searchEntries={searchEntries}>
       <article className="article-panel">
         <header className="article-header">
           <p className="eyebrow">

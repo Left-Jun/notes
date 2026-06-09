@@ -3,24 +3,25 @@ import { NoteCard } from "@/components/note-card";
 import { SiteShell } from "@/components/site-shell";
 import { getNotes } from "@/lib/notes";
 import { buildSearchEntries } from "@/lib/search";
-import { getSection } from "@/lib/site";
+import { getSection, normalizeSectionId } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const section = slug === "all" ? getSection("all") : getSection(slug);
+  const normalizedSlug = normalizeSectionId(slug);
+  const section = slug === "all" ? getSection("all") : getSection(normalizedSlug);
 
   if (!section) {
     notFound();
   }
 
   const allNotes = await getNotes({ status: "published" });
-  const notes = slug === "all" ? allNotes : allNotes.filter((note) => note.section === slug);
+  const notes = slug === "all" ? allNotes : await getNotes({ section: normalizedSlug, status: "published" });
   const searchEntries = buildSearchEntries(allNotes);
 
   return (
-    <SiteShell active={slug} searchEntries={searchEntries}>
+    <SiteShell active={section.id} searchEntries={searchEntries}>
       <section className="list-hero">
         <p className="eyebrow">{section.mark} Archive</p>
         <h1>{section.label}</h1>

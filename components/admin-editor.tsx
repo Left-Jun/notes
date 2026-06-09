@@ -10,10 +10,7 @@ import type { MoodPrivacy, Note, NoteStatus } from "@/lib/types";
 
 const sectionOptions = [
   ["posts", "随笔"],
-  ["diary", "日记"],
-  ["travel", "旅行"],
-  ["ideas", "小巧思"],
-  ["events", "活动"]
+  ["diary", "日记"]
 ];
 
 const privacyOptions: Array<[MoodPrivacy, string]> = [

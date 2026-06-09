@@ -1,4 +1,4 @@
-import { Archive, BookOpen, Feather, Heart, Home, LayoutDashboard, MessageCircle, Plus } from "lucide-react";
+import { BookOpen, Feather, Heart, Home, MessageCircle, Plus, UserRound } from "lucide-react";
 import { AuthQuickEntry, MobileProfileNavItem, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
@@ -34,18 +34,25 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
       description: "短一点的近况。"
     },
     {
-      id: "mood",
-      href: "/mood",
-      label: "心情",
-      mark: <Heart size={18} />,
-      description: "心情小径。"
+      id: "square",
+      href: "/square",
+      label: "情绪广场",
+      mark: <MessageCircle size={18} />,
+      description: "看公开的情绪求助。"
     },
     {
-      id: "all",
-      href: "/category/all",
-      label: "全部",
-      mark: <Archive size={18} />,
-      description: "全部公开记录。"
+      id: "mood",
+      href: "/mood",
+      label: "情绪小站",
+      mark: <Heart size={18} />,
+      description: "记录自己的情绪。"
+    },
+    {
+      id: "auth",
+      href: "/me",
+      label: "我的",
+      mark: <UserRound size={18} />,
+      description: "个人主页与账号。"
     }
   ];
   const mobileNav = [
@@ -100,10 +107,6 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
           </div>
 
           <div className="sidebar-bottom">
-            <a className={active === "admin" ? "sidebar-admin-link is-active" : "sidebar-admin-link"} href="/admin" aria-current={active === "admin" ? "page" : undefined}>
-              <LayoutDashboard size={17} />
-              <span>后台</span>
-            </a>
             <SidebarCollapseButton />
           </div>
         </aside>

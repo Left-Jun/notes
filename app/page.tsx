@@ -24,8 +24,8 @@ export default async function HomePage() {
         <p className="eyebrow">limenauts</p>
         <h1>把项目之外的日子，也认真收起来。</h1>
         <p className="hero-copy">
-          这里会放随笔、日记、旅行记录、小巧思和活动经历。不是作品集的另一面，
-          只是把日常、路上和一些还没成形的念头安静地收好。
+          这里会放随笔、日记，以及那些还只是标签的小念头。不是作品集的另一面，
+          只是把日常、路上和一些还没成形的想法安静地收好。
         </p>
         <div className="hero-actions" aria-label="快捷操作">
           <a className="primary-link" href="#recent">
@@ -91,7 +91,7 @@ export default async function HomePage() {
 
       <section className="section-grid" aria-label="内容分类">
         {sections
-          .filter((section) => section.id !== "home" && section.id !== "about")
+          .filter((section) => section.id === "posts" || section.id === "diary")
           .map((section) => (
             <a className="section-card" href={`/category/${section.id}`} key={section.id}>
               <span className="section-icon" aria-hidden="true">

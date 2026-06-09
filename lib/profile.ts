@@ -51,7 +51,7 @@ export const defaultProfile: UserProfile = {
   avatarUrl: "/img/avatar.jpg",
   statusEmoji: "✦",
   statusText: "动态站接入中",
-  bio: "阈限手记：随笔、日记、旅行与一些突然冒出来的小想法。",
+  bio: "因为山就在那里。",
   socialLinks: {
     website: "https://leftjun.com",
     github: "https://github.com/Left-Jun",

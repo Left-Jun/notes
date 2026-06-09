@@ -2,7 +2,7 @@ import type { Section } from "@/lib/types";
 
 export const siteName = "limenauts";
 export const siteTitle = "limenauts | 阈限手记";
-export const siteDescription = "写下项目之外的日子：随笔、日记、旅行、活动和突然冒出来的小巧思。";
+export const siteDescription = "写下项目之外的日子：随笔、日记，以及一些作为标签慢慢留下的小念头。";
 
 export const sections: Section[] = [
   {
@@ -22,24 +22,6 @@ export const sections: Section[] = [
     label: "日记",
     mark: "●",
     description: "短一点的近况，允许碎片化。"
-  },
-  {
-    id: "travel",
-    label: "旅行",
-    mark: "⌖",
-    description: "城市、路线、天气、照片和路上的小事。"
-  },
-  {
-    id: "ideas",
-    label: "小巧思",
-    mark: "✦",
-    description: "还没变成项目的灵感、机制、句子和草图。"
-  },
-  {
-    id: "events",
-    label: "活动",
-    mark: "◆",
-    description: "比赛、展览、讲座、聚会和现场经历。"
   },
   {
     id: "all",
@@ -78,8 +60,25 @@ export const socialLinks = [
   }
 ];
 
+const sectionAliasTags: Record<string, string> = {
+  travel: "旅行",
+  ideas: "小巧思",
+  events: "活动"
+};
+
+export function normalizeSectionId(id?: string | null) {
+  if (id === "diary") return "diary";
+  if (id === "home" || id === "all" || id === "about") return id;
+  return "posts";
+}
+
+export function sectionAliasTag(id?: string | null) {
+  return id ? sectionAliasTags[id] : undefined;
+}
+
 export function getSection(id: string) {
-  return sections.find((section) => section.id === id);
+  const normalized = normalizeSectionId(id);
+  return sections.find((section) => section.id === normalized);
 }
 
 export function formatDate(value: string) {
