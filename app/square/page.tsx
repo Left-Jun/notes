@@ -1,73 +1,88 @@
-import { Gamepad2, HeartHandshake, ShieldCheck } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { getMoodMonster, getPublicMoodEntries } from "@/lib/mood";
+import { getMoodMonster } from "@/lib/mood";
+import { getPublicMoodEntryRecords } from "@/lib/mood-records";
 import { getNotes } from "@/lib/notes";
+import { displayProfile } from "@/lib/profile";
 import { buildSearchEntries } from "@/lib/search";
-import { formatDate } from "@/lib/site";
+import type { MoodEntryRecord, MoodPrivacy } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+function privacyCopy(value: MoodPrivacy) {
+  if (value === "anonymous") return "匿名公开";
+  if (value === "summary") return "摘要公开";
+  return "私密";
+}
 
-function monsterHref(monsterId: string, entry: { id: string; noteSlug?: string }) {
-  const params = new URLSearchParams({ entry: entry.id });
-  if (entry.noteSlug) {
-    params.set("slug", entry.noteSlug);
-  }
-  return `/monster/${monsterId}?${params.toString()}`;
+function entryHref(entry: MoodEntryRecord) {
+  const monsterId = entry.monsterId || "pressure-bloom";
+  return `/monster/${monsterId}?moodEntry=${encodeURIComponent(entry.id)}`;
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
 }
 
 export default async function MoodSquarePage() {
-  const notes = await getNotes({ status: "published" });
+  const [notes, publicEntries] = await Promise.all([getNotes({ status: "published" }), getPublicMoodEntryRecords()]);
   const searchEntries = buildSearchEntries(notes);
-  const publicEntries = getPublicMoodEntries(notes);
 
   return (
     <SiteShell active="square" searchEntries={searchEntries}>
       <section className="list-hero mood-square-hero">
-        <p className="eyebrow">Mood Square</p>
-        <h1>匿名心情广场</h1>
-        <p>
-          这里不追求热闹，只放愿意被看见的一小段心情。别人可以帮忙削弱坏心情怪兽，
-          也可以留下一句轻一点的支持。
-        </p>
+        <div>
+          <p className="eyebrow">Mood Square</p>
+          <h1>匿名情绪广场</h1>
+          <p>这里只出现用户主动公开的摘要或匿名情绪。你可以留下一句轻量鼓励，鼓励会进入对方自己的情绪小站。</p>
+        </div>
+        <div className="hero-actions">
+          <a className="primary-link" href="/mood">
+            回到我的情绪小站
+          </a>
+        </div>
       </section>
 
-      <div className="privacy-strip">
-        <ShieldCheck size={18} />
-        <span>广场原型默认隐藏身份；完整日记仍留在个人记录里。</span>
-      </div>
+      {publicEntries.length > 0 ? (
+        <section className="mood-square-grid" aria-label="公开情绪记录">
+          {publicEntries.map((entry) => {
+            const monster = getMoodMonster(entry.monsterId || "pressure-bloom");
+            const profile = entry.privacy === "summary" ? displayProfile(entry.profile) : null;
 
-      <section className="mood-square-grid" aria-label="公开心情">
-        {publicEntries.map((entry) => {
-          const monster = getMoodMonster(entry.monsterId);
-          return (
-            <article className="mood-square-card" key={entry.id}>
-              <div className="mood-square-card__top">
-                <span>{entry.privacy === "anonymous" ? "匿名" : "摘要"}</span>
-                <time dateTime={entry.date}>{formatDate(entry.date)}</time>
-              </div>
-              <h2>{entry.title}</h2>
-              <p>{entry.summary}</p>
-              <div className="mood-square-card__tags">
-                {entry.tags.map((tag) => (
-                  <span key={tag}>#{tag}</span>
-                ))}
-              </div>
-              <div className="mood-square-card__support">
-                <span>
-                  <HeartHandshake size={15} />
-                  {entry.supportCount} 次支持
-                </span>
-                {monster ? (
-                  <a href={monsterHref(monster.id, entry)}>
-                    <Gamepad2 size={15} />
-                    帮 TA 一下
-                  </a>
-                ) : null}
-              </div>
-            </article>
-          );
-        })}
-      </section>
+            return (
+              <article className="mood-square-card" key={entry.id}>
+                <div className="mood-square-card__top">
+                  <span>{privacyCopy(entry.privacy)}</span>
+                  <span>{formatDate(entry.recordedAt)}</span>
+                </div>
+                <h2>{entry.mood}</h2>
+                <p>{entry.coreReason}</p>
+                {entry.note && entry.privacy === "summary" ? <p className="mood-square-card__note">{entry.note}</p> : null}
+                <div className="mood-square-card__tags">
+                  <span>强度 {entry.intensity}</span>
+                  {profile ? <span>{profile.displayName}</span> : <span>匿名朋友</span>}
+                  {entry.tags.slice(0, 3).map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+                <div className="mood-square-card__support">
+                  <span>{entry.supportCount} 次支持</span>
+                  <a href={entryHref(entry)}>{monster ? `帮 TA 击败${monster.name}` : "帮 TA 轻轻推一下"}</a>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      ) : (
+        <section className="content-section mood-empty-state mood-empty-state--wide">
+          <p>广场暂时还没有公开情绪。把自己的记录设为“摘要公开”或“匿名公开”后，这里会出现可以被支持的小小信号。</p>
+          <a className="primary-link" href="/mood">
+            写一条情绪记录
+          </a>
+        </section>
+      )}
     </SiteShell>
   );
 }

@@ -963,7 +963,7 @@ textarea:focus-visible {
   padding: 36px 42px;
 }
 
-.site-main > :is(.hero-panel, .section-grid, .mood-bridge, .content-section, .list-hero, .article-panel, .comment-panel, .studio-panel, .auth-panel, .profile-editor, .public-profile, .mood-layout, .mood-overview-grid, .mood-square-grid, .monster-layout, .stats-layout) {
+.site-main > :is(.hero-panel, .section-grid, .mood-bridge, .content-section, .list-hero, .article-panel, .comment-panel, .studio-panel, .auth-panel, .profile-editor, .public-profile, .mood-layout, .mood-station, .mood-overview-grid, .mood-square-grid, .monster-layout, .stats-layout) {
   animation: notes-fade-up 0.48s var(--ease) both;
 }
 
@@ -1465,6 +1465,783 @@ p {
   max-width: 100%;
   min-height: 36px;
   padding: 0 12px;
+}
+
+.mood-station {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.mood-core-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) repeat(3, minmax(0, 0.75fr));
+  gap: 14px;
+}
+
+.mood-core-card,
+.mood-entry-form,
+.mood-inbox,
+.mood-timeline,
+.mood-day-group,
+.mood-trend-strip article,
+.monster-game {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-strong) 92%, transparent);
+  box-shadow: 0 8px 20px rgba(38, 62, 57, 0.035);
+}
+
+.mood-core-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 154px;
+  padding: 18px;
+  overflow: hidden;
+}
+
+.mood-core-card--main {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 52%),
+    color-mix(in srgb, var(--surface-strong) 94%, transparent);
+}
+
+.mood-core-card__head,
+.mood-core-card > span,
+.encouragement-card span,
+.monster-game__result,
+.mood-day-group__head,
+.mood-entry-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mood-core-card__head {
+  justify-content: space-between;
+}
+
+.mood-core-card__head button,
+.mood-entry-row__meta button {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  transition: color var(--motion) ease, border-color var(--motion) ease, transform var(--motion) ease, background var(--motion) ease;
+}
+
+.mood-core-card__head button:hover,
+.mood-core-card__head button:focus-visible,
+.mood-entry-row__meta button:hover,
+.mood-entry-row__meta button:focus-visible {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
+  transform: translateY(-1px);
+}
+
+.mood-core-card > span,
+.mood-core-card__head span,
+.encouragement-card span {
+  color: var(--accent-strong);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.mood-core-card strong {
+  color: var(--text);
+  font-size: 1.72rem;
+  line-height: 1.1;
+}
+
+.mood-core-card p,
+.mood-core-card small,
+.mood-inbox span,
+.mood-timeline span,
+.encouragement-card p,
+.mood-entry-row p,
+.mood-entry-row small,
+.mood-empty-state p,
+.monster-game__body > p,
+.monster-game__result p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.mood-intensity-meter,
+.monster-hp {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.mood-intensity-meter span,
+.monster-hp span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--warm) 70%, var(--accent)));
+  transition: width 0.42s var(--ease);
+}
+
+.mood-station-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.mood-entry-form,
+.mood-inbox,
+.mood-timeline {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.mood-entry-form .section-heading,
+.mood-inbox .section-heading,
+.mood-timeline .section-heading {
+  margin-bottom: 0;
+}
+
+.mood-entry-form .primary-link {
+  justify-self: start;
+  border: 0;
+}
+
+.mood-range-field input {
+  accent-color: var(--accent);
+  padding-inline: 0;
+}
+
+.mood-inbox {
+  position: sticky;
+  top: 92px;
+}
+
+.encouragement-list {
+  display: grid;
+  gap: 10px;
+}
+
+.encouragement-card {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.encouragement-card small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.mood-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 16px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface-strong));
+  color: var(--accent-strong);
+}
+
+.mood-empty-state--wide {
+  justify-items: center;
+  text-align: center;
+}
+
+.mood-day-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.mood-day-group {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.mood-day-group__head {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mood-day-group__head > div {
+  display: grid;
+  gap: 2px;
+}
+
+.mood-day-group__head > div:last-child {
+  justify-items: end;
+}
+
+.mood-day-group__head strong {
+  color: var(--text);
+}
+
+.mood-day-group__head > div:last-child span,
+.mood-entry-row__meta > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+
+.mood-entry-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.mood-entry-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(96px, auto);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.mood-entry-row time {
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.mood-entry-row strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.mood-entry-row__meta {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.mood-entry-row__meta small {
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.mood-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mood-entry-tags span,
+.mood-square-card__note {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warm) 10%, transparent);
+  color: var(--warm);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.mood-entry-tags span {
+  padding: 3px 8px;
+}
+
+.mood-square-card__note {
+  margin-top: -4px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.mood-trend-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mood-trend-strip article {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.mood-trend-strip span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.mood-trend-strip strong {
+  color: var(--text);
+}
+
+.list-hero.mood-hero--compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  min-height: 0;
+  padding: 12px 16px;
+}
+
+.list-hero.mood-hero--compact h1 {
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+}
+
+.list-hero.mood-hero--compact p {
+  max-width: 620px;
+  margin-top: 4px;
+  font-size: 0.92rem;
+}
+
+.list-hero.mood-hero--compact .hero-actions {
+  margin-top: 0;
+}
+
+.mood-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 44%),
+    color-mix(in srgb, var(--surface-strong) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.mood-stage__monster {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.58fr) minmax(0, 1fr);
+  gap: 18px;
+  align-content: start;
+  min-width: 0;
+  padding: 24px;
+}
+
+.mood-stage__topline {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mood-stage__topline span,
+.mood-stage__core span,
+.mood-stage__stats span,
+.mood-entry-form__head span,
+.mood-guest-steps span {
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+
+.mood-stage__topline span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.86rem;
+}
+
+.mood-stage__topline button {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  transition: transform var(--motion) ease, border-color var(--motion) ease, background var(--motion) ease, color var(--motion) ease;
+}
+
+.mood-stage__topline button:hover,
+.mood-stage__topline button:focus-visible {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
+  transform: translateY(-1px);
+}
+
+.mood-stage__visual {
+  grid-row: 2 / span 2;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+
+.mood-stage__orb {
+  display: grid;
+  place-items: center;
+  width: min(230px, 100%);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
+  border-radius: 44% 56% 47% 53%;
+  background:
+    radial-gradient(circle at 34% 28%, color-mix(in srgb, #fff 52%, transparent), transparent 18%),
+    radial-gradient(circle at 68% 70%, color-mix(in srgb, var(--warm) 24%, transparent), transparent 30%),
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 24%, var(--surface-strong)), color-mix(in srgb, var(--warm) 14%, var(--surface-muted)));
+  box-shadow: 0 22px 50px rgba(38, 62, 57, 0.16);
+  animation: monsterBreath 3.4s ease-in-out infinite;
+}
+
+.mood-stage__orb span {
+  color: var(--accent-strong);
+  font-size: clamp(2.5rem, 8vw, 4.4rem);
+  font-weight: 950;
+}
+
+.mood-stage__copy,
+.mood-stage__core,
+.mood-entry-form__head,
+.mood-advanced-fields,
+.mood-guest-steps {
+  display: grid;
+  gap: 8px;
+}
+
+.mood-stage__copy h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.mood-stage__copy p:last-child,
+.mood-stage__core p,
+.mood-stage__core small,
+.mood-entry-form__head span,
+.mood-empty-state--quiet p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.mood-stage__core {
+  grid-column: 2;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 66%, transparent);
+}
+
+.mood-stage__core > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mood-stage__core strong {
+  color: var(--text);
+  font-size: 1.35rem;
+}
+
+.mood-stage__meter {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.mood-stage__meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--warm) 70%, var(--accent)));
+  transition: width 0.42s var(--ease);
+}
+
+.mood-stage__stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mood-stage__stats span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.mood-stage__stats strong {
+  color: var(--accent-strong);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.mood-entry-form--stage {
+  align-content: start;
+  border-width: 0 0 0 1px;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--warm) 6%, transparent), transparent 34%),
+    color-mix(in srgb, var(--surface) 72%, transparent);
+  box-shadow: none;
+}
+
+.mood-entry-form--stage .form-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.72fr);
+}
+
+.mood-entry-form--stage input[type="range"] {
+  accent-color: var(--accent);
+  padding-inline: 0;
+}
+
+.mood-more-options {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+}
+
+.mood-more-options summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-weight: 900;
+  list-style: none;
+}
+
+.mood-more-options summary::-webkit-details-marker {
+  display: none;
+}
+
+.mood-more-options[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.mood-more-options summary svg {
+  transition: transform var(--motion) ease;
+}
+
+.mood-advanced-fields {
+  padding: 0 12px 12px;
+}
+
+.mood-entry-form--guest {
+  min-height: 100%;
+}
+
+.mood-guest-steps span {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-strong) 74%, transparent);
+}
+
+.mood-secondary {
+  display: grid;
+  gap: 22px;
+}
+
+.mood-encouragement-rail,
+.mood-trend-line {
+  display: grid;
+  gap: 12px;
+}
+
+.encouragement-list--rail {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(230px, 0.34fr);
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.encouragement-list--rail::-webkit-scrollbar {
+  display: none;
+}
+
+.mood-empty-state--quiet {
+  border-style: solid;
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+}
+
+.mood-timeline--light {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mood-timeline--light .mood-day-group {
+  padding: 14px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mood-timeline--light .mood-entry-row {
+  border-color: color-mix(in srgb, var(--line) 76%, transparent);
+  background: color-mix(in srgb, var(--surface-strong) 64%, transparent);
+}
+
+.mood-trend-line__items {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mood-trend-line__items article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.mood-trend-line__items span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.mood-trend-line__items strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monster-game {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.55fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.monster-orb {
+  display: grid;
+  place-items: center;
+  width: min(250px, 100%);
+  aspect-ratio: 1;
+  justify-self: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: 45% 55% 48% 52%;
+  background:
+    radial-gradient(circle at 34% 28%, color-mix(in srgb, #ffffff 50%, transparent), transparent 19%),
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 20%, var(--surface-strong)), color-mix(in srgb, var(--warm) 16%, var(--surface-muted)));
+  box-shadow: 0 18px 44px rgba(38, 62, 57, 0.14);
+  animation: monsterBreath 3.4s ease-in-out infinite;
+}
+
+.monster-orb span {
+  color: var(--accent-strong);
+  font-size: clamp(2rem, 7vw, 4rem);
+  font-weight: 950;
+}
+
+.monster-game__body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.monster-game__body h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.monster-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.monster-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--text);
+  font-weight: 850;
+  transition: transform var(--motion) ease, border-color var(--motion) ease, background var(--motion) ease, color var(--motion) ease, box-shadow var(--motion) ease;
+}
+
+.monster-actions button:hover,
+.monster-actions button:focus-visible,
+.monster-actions button.is-active {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
+  box-shadow: 0 10px 22px rgba(24, 116, 111, 0.1);
+  transform: translateY(-1px);
+}
+
+.monster-message-field textarea {
+  min-height: 90px;
+}
+
+.monster-send-button {
+  justify-self: start;
+  border: 0;
+}
+
+.monster-game__result {
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.monster-game__result svg {
+  color: var(--accent-strong);
+  flex: 0 0 auto;
+}
+
+.monster-game__result span {
+  color: var(--accent-strong);
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .repair-game {
@@ -2828,6 +3605,35 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .mood-core-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mood-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .mood-entry-form--stage {
+    border-width: 1px 0 0;
+  }
+
+  .mood-trend-line__items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mood-station-layout,
+  .monster-game {
+    grid-template-columns: 1fr;
+  }
+
+  .mood-inbox {
+    position: static;
+  }
+
+  .mood-trend-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .profile-editor {
     grid-template-columns: 1fr;
   }
@@ -2922,18 +3728,19 @@ textarea {
   }
 
   .sidebar-brand {
-    --brand-mark-size: 44px;
+    --brand-mark-size: 42px;
     grid-column: 2;
     grid-row: 1;
     position: static;
     width: var(--brand-mark-size);
-    min-height: 44px;
-    height: 44px;
-    margin-left: auto;
+    min-height: var(--brand-mark-size);
+    height: var(--brand-mark-size);
+    margin-left: 0;
     justify-content: flex-end;
-    align-self: center;
+    align-self: start;
     justify-self: end;
     pointer-events: auto;
+    transform: translate(-5px, -3px);
   }
 
   .sidebar-brand__logo--mark {
@@ -3123,6 +3930,9 @@ textarea {
   .section-grid,
   .mood-overview-grid,
   .mood-roadmap,
+  .mood-core-grid,
+  .mood-station-layout,
+  .mood-trend-strip,
   .trend-chart,
   .form-grid {
     grid-template-columns: 1fr;
@@ -3213,6 +4023,136 @@ textarea {
 
   .section-heading {
     align-items: start;
+    flex-direction: column;
+  }
+
+  .mood-station {
+    gap: 12px;
+  }
+
+  .list-hero.mood-hero--compact {
+    align-items: flex-start;
+    flex-direction: row;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+  }
+
+  .list-hero.mood-hero--compact p,
+  .list-hero.mood-hero--compact .hero-actions {
+    display: none;
+  }
+
+  .mood-stage {
+    border-radius: 16px;
+  }
+
+  .mood-stage__monster {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .mood-stage__visual {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    align-self: start;
+  }
+
+  .mood-stage__orb {
+    width: 104px;
+  }
+
+  .mood-stage__copy h2 {
+    font-size: 1.7rem;
+  }
+
+  .mood-stage__copy {
+    grid-column: 2;
+  }
+
+  .mood-stage__copy p:last-child {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .mood-stage__core {
+    grid-column: 1 / -1;
+    padding: 12px;
+  }
+
+  .mood-stage__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mood-stage__stats span {
+    padding: 8px 7px;
+    font-size: 0.74rem;
+  }
+
+  .mood-entry-form--stage .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mood-advanced-fields {
+    padding-inline: 10px;
+  }
+
+  .encouragement-list--rail {
+    grid-auto-columns: minmax(210px, 78%);
+  }
+
+  .mood-trend-line__items {
+    grid-template-columns: 1fr;
+  }
+
+  .mood-core-card,
+  .mood-entry-form,
+  .mood-inbox,
+  .mood-timeline,
+  .mood-day-group,
+  .monster-game {
+    padding: 14px;
+  }
+
+  .mood-core-card {
+    min-height: 0;
+  }
+
+  .mood-core-card strong {
+    font-size: 1.42rem;
+  }
+
+  .mood-entry-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .mood-entry-row__meta {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .mood-day-group__head {
+    align-items: flex-start;
+  }
+
+  .mood-day-group__head > div:last-child {
+    justify-items: start;
+  }
+
+  .monster-orb {
+    width: min(170px, 62vw);
+  }
+
+  .monster-game__body h2 {
+    font-size: 1.42rem;
+  }
+
+  .monster-game__result {
+    align-items: flex-start;
     flex-direction: column;
   }
 
@@ -3350,6 +4290,19 @@ textarea {
     padding: 10px;
   }
 
+  .sidebar-brand {
+    --brand-mark-size: 40px;
+    transform: translate(-4px, -2px);
+  }
+
+  .mood-stage__monster {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .mood-stage__orb {
+    width: 96px;
+  }
+
   .auth-panel__intro,
   .auth-form {
     padding: 20px;
@@ -3396,6 +4349,33 @@ textarea {
     max-width: 100%;
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  .mood-entry-form,
+  .mood-inbox,
+  .mood-timeline,
+  .mood-day-group,
+  .encouragement-card,
+  .mood-entry-row,
+  .monster-game {
+    padding: 12px;
+  }
+
+  .mood-core-card__head {
+    align-items: flex-start;
+  }
+
+  .mood-entry-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mood-entry-row__meta {
+    grid-column: auto;
+  }
+
+  .monster-actions button,
+  .monster-send-button {
+    width: 100%;
   }
 
   .hero-actions {

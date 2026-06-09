@@ -55,9 +55,58 @@ export type MoodSupportAction = {
   id: string;
   noteId?: string | null;
   noteSlug?: string | null;
+  moodEntryId?: string | null;
   monsterId: string;
   action: string;
+  message?: string | null;
   createdAt: string;
+};
+
+export type MoodEntryRecord = {
+  id: string;
+  profileId: string;
+  profile?: UserProfile | null;
+  mood: string;
+  intensity: number;
+  coreReason: string;
+  nextAction: string;
+  note?: string | null;
+  tags: string[];
+  privacy: MoodPrivacy;
+  monsterId?: string | null;
+  supportCount: number;
+  recordedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type MoodEncouragement = {
+  id: string;
+  moodEntryId: string;
+  receiverProfileId: string;
+  senderProfileId?: string | null;
+  senderProfile?: UserProfile | null;
+  action: string;
+  message: string;
+  createdAt: string;
+};
+
+export type MoodDailyGroup = {
+  date: string;
+  label: string;
+  entries: MoodEntryRecord[];
+  averageIntensity: number;
+  dominantMood: string;
+};
+
+export type MoodCoreSummary = {
+  title: string;
+  mood: string;
+  intensity: number;
+  entryCount: number;
+  coreReason: string;
+  nextAction: string;
+  recordedAt?: string;
 };
 
 export type Section = {

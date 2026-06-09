@@ -1,70 +1,91 @@
-import { ArrowLeft, HeartHandshake } from "lucide-react";
 import { notFound } from "next/navigation";
 import { MoodRepairGame } from "@/components/mood-repair-game";
 import { SiteShell } from "@/components/site-shell";
 import { getMoodEntries, getMoodMonster } from "@/lib/mood";
+import { getMoodEntryRecordById, getPublicMoodEntryRecords } from "@/lib/mood-records";
 import { getNotes } from "@/lib/notes";
 import { buildSearchEntries } from "@/lib/search";
 
-export const dynamic = "force-dynamic";
+type MonsterSearchParams = {
+  moodEntry?: string | string[];
+  entry?: string | string[];
+  slug?: string | string[];
+};
 
-export default async function MonsterPage({
-  params,
-  searchParams
-}: {
+type MonsterPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ entry?: string; slug?: string }>;
-}) {
-  const { id } = await params;
-  const query = await searchParams;
+  searchParams?: Promise<MonsterSearchParams>;
+};
+
+function firstParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value || "";
+}
+
+export default async function MonsterPage({ params, searchParams }: MonsterPageProps) {
+  const [{ id }, notes, publicMoodEntries] = await Promise.all([
+    params,
+    getNotes({ status: "published" }),
+    getPublicMoodEntryRecords()
+  ]);
+  const query: MonsterSearchParams = searchParams ? await searchParams : {};
   const monster = getMoodMonster(id);
 
   if (!monster) {
     notFound();
   }
 
-  const notes = await getNotes({ status: "published" });
+  const requestedMoodEntryId = firstParam(query.moodEntry || query.entry);
+  const requestedMoodEntry = requestedMoodEntryId ? await getMoodEntryRecordById(requestedMoodEntryId) : null;
+  const targetMoodEntry =
+    requestedMoodEntry && requestedMoodEntry.privacy !== "private"
+      ? requestedMoodEntry
+      : publicMoodEntries.find((entry) => entry.monsterId === monster.id) || null;
+
+  const legacyEntries = getMoodEntries(notes);
+  const legacyEntry = legacyEntries.find((entry) => entry.id === firstParam(query.entry) || entry.noteSlug === firstParam(query.slug));
   const searchEntries = buildSearchEntries(notes);
-  const targetEntry = getMoodEntries(notes).find((entry) => entry.id === query.entry || entry.noteSlug === query.slug);
-  const supportCount = targetEntry?.supportCount ?? monster.supportCount;
+  const contextTitle = targetMoodEntry ? `${targetMoodEntry.mood} · ${targetMoodEntry.coreReason}` : legacyEntry?.title || monster.source;
+  const contextSummary = targetMoodEntry?.note || targetMoodEntry?.nextAction || legacyEntry?.summary || monster.summary;
 
   return (
     <SiteShell active="square" searchEntries={searchEntries}>
       <section className="list-hero monster-hero">
-        <p className="eyebrow">Repair Game</p>
-        <h1>{monster.name}</h1>
-        <p>{monster.summary}</p>
+        <div>
+          <p className="eyebrow">Mood Monster</p>
+          <h1>{monster.name}</h1>
+          <p>{monster.summary}</p>
+        </div>
         <div className="hero-actions">
-          <a className="secondary-link" href="/square">
-            <ArrowLeft size={18} />
+          <a className="primary-link" href="/square">
             回到广场
           </a>
-          <a className="primary-link" href="/mood">
-            <HeartHandshake size={18} />
-            心情小径
+          <a className="secondary-link" href="/mood">
+            我的情绪小站
           </a>
         </div>
       </section>
 
-      <section className="content-section monster-layout">
+      <section className="monster-layout">
         <MoodRepairGame
           monster={monster}
-          entryId={targetEntry?.id || query.entry || null}
-          noteSlug={targetEntry?.noteSlug || query.slug || null}
-          initialSupportCount={supportCount}
+          moodEntryId={targetMoodEntry?.id || null}
+          entryId={legacyEntry?.id || null}
+          noteSlug={legacyEntry?.noteSlug || null}
+          initialSupportCount={targetMoodEntry?.supportCount ?? legacyEntry?.supportCount ?? monster.supportCount}
         />
-        <aside className="monster-brief">
-          <span>{monster.tone}</span>
-          <h2>它从哪里来</h2>
-          <p>{monster.source}</p>
-          {targetEntry ? (
-            <>
-              <h2>正在帮助</h2>
-              <p>{targetEntry.title}</p>
-            </>
-          ) : null}
-          <h2>收到的支持</h2>
-          <p>{supportCount} 次轻量回应已经让它松动了一点。</p>
+        <aside className="mood-side-panel" aria-label="被支持的情绪">
+          <div>
+            <strong>这次面对的是</strong>
+            <p>{contextTitle}</p>
+          </div>
+          <div>
+            <strong>修复提示</strong>
+            <p>{contextSummary}</p>
+          </div>
+          <div>
+            <strong>鼓励去向</strong>
+            <p>{targetMoodEntry ? "互动完成后会进入对方自己的情绪小站收件箱。" : "旧文章支持会继续累加在文章心情记录里。"}</p>
+          </div>
         </aside>
       </section>
     </SiteShell>

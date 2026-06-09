@@ -70,6 +70,33 @@ create table if not exists public.mood_supports (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.mood_entries (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null references public.profiles(id) on delete cascade,
+  mood text not null default '记录中',
+  intensity smallint not null default 50 check (intensity >= 0 and intensity <= 100),
+  core_reason text not null default '',
+  next_action text not null default '',
+  note text,
+  tags text[] not null default '{}',
+  privacy text not null default 'private' check (privacy in ('private', 'anonymous', 'summary')),
+  monster_id text,
+  support_count integer not null default 0 check (support_count >= 0),
+  recorded_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.mood_encouragements (
+  id uuid primary key default gen_random_uuid(),
+  mood_entry_id uuid not null references public.mood_entries(id) on delete cascade,
+  receiver_profile_id uuid not null references public.profiles(id) on delete cascade,
+  sender_profile_id uuid references public.profiles(id) on delete set null,
+  action text not null default '送一句支持',
+  message text not null default '',
+  created_at timestamptz not null default now()
+);
+
 create index if not exists notes_status_published_idx on public.notes(status, published_at desc);
 create index if not exists notes_section_idx on public.notes(section, published_at desc);
 create index if not exists notes_author_profile_idx on public.notes(author_profile_id, published_at desc);
@@ -77,11 +104,17 @@ create index if not exists profiles_auth_user_idx on public.profiles(auth_user_i
 create index if not exists comments_note_status_idx on public.comments(note_id, status, created_at asc);
 create index if not exists mood_supports_note_idx on public.mood_supports(note_id, created_at desc);
 create index if not exists mood_supports_monster_idx on public.mood_supports(monster_id, created_at desc);
+create index if not exists mood_entries_profile_recorded_idx on public.mood_entries(profile_id, recorded_at desc);
+create index if not exists mood_entries_public_idx on public.mood_entries(privacy, recorded_at desc) where privacy in ('anonymous', 'summary');
+create index if not exists mood_encouragements_receiver_idx on public.mood_encouragements(receiver_profile_id, created_at desc);
+create index if not exists mood_encouragements_entry_idx on public.mood_encouragements(mood_entry_id, created_at desc);
 
 alter table public.notes enable row level security;
 alter table public.profiles enable row level security;
 alter table public.comments enable row level security;
 alter table public.mood_supports enable row level security;
+alter table public.mood_entries enable row level security;
+alter table public.mood_encouragements enable row level security;
 
 drop policy if exists "Profiles are readable" on public.profiles;
 create policy "Profiles are readable"
@@ -120,6 +153,81 @@ drop policy if exists "Visitors can submit pending comments" on public.comments;
 drop policy if exists "Mood supports are readable by service role only" on public.mood_supports;
 -- Anonymous support actions are written through /api/mood/support with the service role.
 
+drop policy if exists "Mood entries are readable by owner or public privacy" on public.mood_entries;
+create policy "Mood entries are readable by owner or public privacy"
+on public.mood_entries for select
+to anon, authenticated
+using (
+  privacy in ('anonymous', 'summary')
+  or exists (
+    select 1 from public.profiles
+    where profiles.id = mood_entries.profile_id
+      and profiles.auth_user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Users can insert their own mood entries" on public.mood_entries;
+create policy "Users can insert their own mood entries"
+on public.mood_entries for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = mood_entries.profile_id
+      and profiles.auth_user_id = auth.uid()
+      and profiles.deleted_at is null
+  )
+);
+
+drop policy if exists "Users can update their own mood entries" on public.mood_entries;
+create policy "Users can update their own mood entries"
+on public.mood_entries for update
+to authenticated
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = mood_entries.profile_id
+      and profiles.auth_user_id = auth.uid()
+      and profiles.deleted_at is null
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = mood_entries.profile_id
+      and profiles.auth_user_id = auth.uid()
+      and profiles.deleted_at is null
+  )
+);
+
+drop policy if exists "Users can delete their own mood entries" on public.mood_entries;
+create policy "Users can delete their own mood entries"
+on public.mood_entries for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = mood_entries.profile_id
+      and profiles.auth_user_id = auth.uid()
+      and profiles.deleted_at is null
+  )
+);
+
+drop policy if exists "Users can read received encouragements" on public.mood_encouragements;
+create policy "Users can read received encouragements"
+on public.mood_encouragements for select
+to authenticated
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = mood_encouragements.receiver_profile_id
+      and profiles.auth_user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Mood encouragements are written through API" on public.mood_encouragements;
+-- Public encouragements are inserted through /api/mood/support with the service role.
+
 create or replace function public.touch_updated_at()
 returns trigger as $$
 begin
@@ -138,6 +246,11 @@ create trigger profiles_touch_updated_at
 before update on public.profiles
 for each row execute function public.touch_updated_at();
 
+drop trigger if exists mood_entries_touch_updated_at on public.mood_entries;
+create trigger mood_entries_touch_updated_at
+before update on public.mood_entries
+for each row execute function public.touch_updated_at();
+
 create or replace function public.increment_note_support(target_note_id uuid)
 returns integer as $$
 declare
@@ -146,6 +259,20 @@ begin
   update public.notes
   set support_count = support_count + 1
   where id = target_note_id
+  returning support_count into next_count;
+
+  return coalesce(next_count, 0);
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.increment_mood_entry_support(target_entry_id uuid)
+returns integer as $$
+declare
+  next_count integer;
+begin
+  update public.mood_entries
+  set support_count = support_count + 1
+  where id = target_entry_id
   returning support_count into next_count;
 
   return coalesce(next_count, 0);
