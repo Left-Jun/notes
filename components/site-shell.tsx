@@ -1,9 +1,8 @@
-import { Heart, Home, LayoutDashboard, MessageCircle, Plus } from "lucide-react";
+import { Archive, BookOpen, Feather, Heart, Home, LayoutDashboard, MessageCircle, Plus } from "lucide-react";
 import { AuthQuickEntry, MobileProfileNavItem, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { sections } from "@/lib/site";
 
 type SiteShellProps = {
   active?: string;
@@ -17,21 +16,21 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
       id: "home",
       href: "/",
       label: "首页",
-      mark: sections.find((section) => section.id === "home")?.mark || "⌁",
+      mark: <Home size={18} />,
       description: "回到最近记录。"
     },
     {
       id: "posts",
       href: "/category/posts",
       label: "随笔",
-      mark: sections.find((section) => section.id === "posts")?.mark || "✎",
+      mark: <BookOpen size={18} />,
       description: "偏长一点的想法。"
     },
     {
       id: "diary",
       href: "/category/diary",
       label: "日记",
-      mark: sections.find((section) => section.id === "diary")?.mark || "●",
+      mark: <Feather size={18} />,
       description: "短一点的近况。"
     },
     {
@@ -45,7 +44,7 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
       id: "all",
       href: "/category/all",
       label: "全部",
-      mark: sections.find((section) => section.id === "all")?.mark || "◼",
+      mark: <Archive size={18} />,
       description: "全部公开记录。"
     }
   ];

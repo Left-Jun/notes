@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { PwaClient } from "@/components/pwa-client";
 import { siteDescription, siteTitle } from "@/lib/site";
 import "./globals.css";
@@ -46,10 +47,33 @@ export const viewport: Viewport = {
   ]
 };
 
+function ThemeBootScript() {
+  const script = `
+(() => {
+  try {
+    const themeKey = "limenaut-notes-theme";
+    const sidebarKey = "limenaut-notes-sidebar-collapsed";
+    const savedTheme = window.localStorage.getItem(themeKey);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+
+    if (window.localStorage.getItem(sidebarKey) === "1" && window.matchMedia("(min-width: 1101px)").matches) {
+      document.documentElement.dataset.sidebarCollapsed = "true";
+    }
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+})();
+`;
+
+  return <Script id="limenauts-theme-boot" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: script }} />;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body>
+        <ThemeBootScript />
         {children}
         <PwaClient />
       </body>

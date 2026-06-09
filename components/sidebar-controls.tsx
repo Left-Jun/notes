@@ -15,7 +15,11 @@ export function SidebarCollapseButton() {
 
     function apply(next: boolean) {
       const canCollapse = media.matches;
-      document.body.classList.toggle("notes-sidebar-collapsed", next && canCollapse);
+      if (next && canCollapse) {
+        document.documentElement.dataset.sidebarCollapsed = "true";
+      } else {
+        delete document.documentElement.dataset.sidebarCollapsed;
+      }
       setCollapsed(next && canCollapse);
     }
 
@@ -28,7 +32,7 @@ export function SidebarCollapseButton() {
     media.addEventListener("change", onChange);
     return () => {
       media.removeEventListener("change", onChange);
-      document.body.classList.remove("notes-sidebar-collapsed");
+      delete document.documentElement.dataset.sidebarCollapsed;
     };
   }, []);
 
@@ -36,7 +40,11 @@ export function SidebarCollapseButton() {
     setCollapsed((current) => {
       const next = !current;
       window.localStorage.setItem(storageKey, next ? "1" : "0");
-      document.body.classList.toggle("notes-sidebar-collapsed", next);
+      if (next) {
+        document.documentElement.dataset.sidebarCollapsed = "true";
+      } else {
+        delete document.documentElement.dataset.sidebarCollapsed;
+      }
       return next;
     });
   }
