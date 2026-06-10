@@ -1,5 +1,5 @@
 import { BookOpen, Feather, Heart, Home, Mail, MessageCircle, Plus, UserRound } from "lucide-react";
-import { AuthQuickEntry, MobileProfileNavItem, SidebarProfile } from "@/components/profile-client";
+import { AuthQuickEntry, MobileProfileNavItem, SidebarAdminLink, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -114,6 +114,7 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
           </div>
 
           <div className="sidebar-bottom">
+            <SidebarAdminLink active={active === "admin"} />
             <SidebarCollapseButton />
           </div>
         </aside>

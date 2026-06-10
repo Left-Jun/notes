@@ -3085,6 +3085,38 @@ textarea {
   border-top: 1px solid var(--line);
 }
 
+.admin-member-list {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-member-row {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-strong) 76%, transparent);
+}
+
+.admin-member-row span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.admin-member-row strong {
+  overflow-wrap: anywhere;
+}
+
+.admin-member-row small {
+  color: var(--muted);
+  font-weight: 760;
+}
+
 .studio-note {
   margin-top: 18px;
   padding: 14px;

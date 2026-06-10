@@ -1,6 +1,13 @@
 export type NoteStatus = "published" | "draft";
 export type MoodPrivacy = "private" | "anonymous" | "summary";
 export type SocialPlatform = "website" | "github" | "youtube" | "bilibili" | "xiaohongshu" | "instagram" | "weibo";
+export type AdminLevel = "owner" | "admin";
+
+export type AdminIdentity = {
+  email: string;
+  level: AdminLevel;
+  source: "built-in" | "database";
+};
 
 export type ProfileSocialLinks = Partial<Record<SocialPlatform, string>>;
 

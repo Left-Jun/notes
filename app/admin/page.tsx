@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage({ searchParams }: { searchParams?: Promise<{ section?: string }> }) {
   const query = searchParams ? await searchParams : {};
   const defaultSection = query.section === "diary" ? "diary" : "posts";
-  const notes = await getNotes();
-  const searchEntries = buildSearchEntries(notes.filter((note) => note.status === "published"));
+  const notes = await getNotes({ status: "published" });
+  const searchEntries = buildSearchEntries(notes);
 
   return (
     <SiteShell active="admin" searchEntries={searchEntries}>
@@ -17,10 +17,10 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         <p className="eyebrow">Studio</p>
         <h1>写作后台</h1>
         <p>
-          写作入口现在只保留最常用的字段：标题、栏目、正文和摘要。链接、标签、封面、情绪等细节可以在可选设置里补。
+          普通账号只能发布和修改自己的记录；管理员账号可以管理站内内容、草稿和管理员邮箱。
         </p>
       </section>
-      <AdminEditor initialNotes={notes} defaultSection={defaultSection} />
+      <AdminEditor initialNotes={[]} defaultSection={defaultSection} />
     </SiteShell>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import { Eye, FileText, ImagePlus, RotateCcw, Save, UploadCloud } from "lucide-react";
+import { Eye, FileText, ImagePlus, Plus, RotateCcw, Save, ShieldCheck, Trash2, UploadCloud } from "lucide-react";
 import { marked } from "marked";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { moodMonsters } from "@/lib/mood";
-import type { MoodPrivacy, Note, NoteStatus } from "@/lib/types";
+import type { AdminIdentity, MoodPrivacy, Note, NoteStatus } from "@/lib/types";
 
 const sectionOptions = [
   ["posts", "随笔"],
@@ -34,6 +34,11 @@ type EditorDraft = {
   location: string;
   status: NoteStatus;
   publishedAt: string;
+};
+
+type AdminMembersState = {
+  admins: AdminIdentity[];
+  current: AdminIdentity | null;
 };
 
 function toDatetimeLocal(value?: string) {
@@ -104,6 +109,10 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
   const [message, setMessage] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [savedSlug, setSavedSlug] = useState("");
+  const [loadingNotes, setLoadingNotes] = useState(true);
+  const [admin, setAdmin] = useState<AdminIdentity | null>(null);
+  const [adminMembers, setAdminMembers] = useState<AdminMembersState>({ admins: [], current: null });
+  const [newAdminEmail, setNewAdminEmail] = useState("");
 
   const previewHtml = useMemo(
     () =>
@@ -117,6 +126,65 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
   function updateDraft<Key extends keyof EditorDraft>(key: Key, value: EditorDraft[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
   }
+
+  async function getSessionToken() {
+    const { data: sessionData } = (await getBrowserSupabase()?.auth.getSession()) || {};
+    return sessionData?.session?.access_token || "";
+  }
+
+  async function loadNotes() {
+    setLoadingNotes(true);
+    try {
+      const sessionToken = await getSessionToken();
+      const response = await fetch("/api/posts", {
+        headers: {
+          authorization: sessionToken ? `Bearer ${sessionToken}` : "",
+          "x-admin-token": token
+        }
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (initialNotes.length > 0) setNotes(sortNotes(initialNotes));
+        setMessage(result.error || "读取记录失败。请先登录，或填写维护者口令。");
+        return;
+      }
+
+      setNotes(sortNotes(result.notes || []));
+      setAdmin(result.admin || null);
+      if (result.admin?.level === "owner") {
+        await loadAdminMembers(sessionToken);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "读取记录失败。");
+    } finally {
+      setLoadingNotes(false);
+    }
+  }
+
+  async function loadAdminMembers(sessionToken?: string) {
+    const tokenValue = sessionToken || (await getSessionToken());
+    const response = await fetch("/api/admin/members", {
+      headers: {
+        authorization: tokenValue ? `Bearer ${tokenValue}` : ""
+      }
+    });
+
+    if (!response.ok) return;
+    setAdminMembers((await response.json()) as AdminMembersState);
+  }
+
+  useEffect(() => {
+    loadNotes();
+    const supabase = getBrowserSupabase();
+    const subscription = supabase?.auth.onAuthStateChange(() => {
+      loadNotes();
+    }).data.subscription;
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
 
   function resetDraft() {
     setSelectedSlug("");
@@ -167,8 +235,7 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
       content: formData.get("content")
     };
 
-    const { data: sessionData } = (await getBrowserSupabase()?.auth.getSession()) || {};
-    const sessionToken = sessionData?.session?.access_token || "";
+    const sessionToken = await getSessionToken();
 
     const response = await fetch("/api/posts", {
       method: "POST",
@@ -207,13 +274,56 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
     router.refresh();
   }
 
+  async function addAdmin() {
+    const sessionToken = await getSessionToken();
+    const response = await fetch("/api/admin/members", {
+      method: "POST",
+      headers: {
+        authorization: sessionToken ? `Bearer ${sessionToken}` : "",
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ email: newAdminEmail })
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      setMessage(result.error || "添加管理员失败。");
+      return;
+    }
+
+    setAdminMembers(result);
+    setNewAdminEmail("");
+    setMessage("管理员邮箱已添加。");
+  }
+
+  async function removeAdmin(email: string) {
+    const sessionToken = await getSessionToken();
+    const response = await fetch(`/api/admin/members?email=${encodeURIComponent(email)}`, {
+      method: "DELETE",
+      headers: {
+        authorization: sessionToken ? `Bearer ${sessionToken}` : ""
+      }
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      setMessage(result.error || "移除管理员失败。");
+      return;
+    }
+
+    setAdminMembers(result);
+    setMessage("管理员邮箱已移除。");
+  }
+
   async function upload(formData: FormData) {
     setMessage("上传中...");
+    const sessionToken = await getSessionToken();
 
     const response = await fetch("/api/upload", {
       method: "POST",
       headers: {
-        "x-admin-token": token
+        "x-admin-token": token,
+        authorization: sessionToken ? `Bearer ${sessionToken}` : ""
       },
       body: formData
     });
@@ -244,9 +354,9 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
 
         <div className="editor-picker">
           <label>
-            <span>编辑已有记录</span>
+            <span>{admin ? "编辑站内记录" : "编辑我的记录"}</span>
             <select value={selectedSlug} onChange={(event) => selectNote(event.target.value)}>
-              <option value="">新记录</option>
+              <option value="">{loadingNotes ? "读取中..." : "新记录"}</option>
               {notes.map((note) => (
                 <option value={note.slug} key={note.slug}>
                   {note.title}
@@ -481,6 +591,43 @@ export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initia
           </button>
         </form>
       </section>
+
+      {admin?.level === "owner" ? (
+        <section className="studio-panel">
+          <div className="studio-panel-header">
+            <div>
+              <p className="eyebrow">Access</p>
+              <h2>管理员邮箱</h2>
+            </div>
+            <ShieldCheck size={20} aria-hidden="true" />
+          </div>
+          <div className="editor-form">
+            <label>
+              <span>添加管理员邮箱</span>
+              <input value={newAdminEmail} onChange={(event) => setNewAdminEmail(event.target.value)} placeholder="name@example.com" type="email" />
+            </label>
+            <button className="secondary-link" type="button" onClick={addAdmin}>
+              <Plus size={18} />
+              添加
+            </button>
+            <div className="admin-member-list" aria-label="当前管理员邮箱">
+              {adminMembers.admins.map((item) => (
+                <div className="admin-member-row" key={item.email}>
+                  <span>
+                    <strong>{item.email}</strong>
+                    <small>{item.level === "owner" ? "站点所有者" : item.source === "built-in" ? "内置管理员" : "管理员"}</small>
+                  </span>
+                  {item.source === "database" ? (
+                    <button className="secondary-link danger-link" type="button" onClick={() => removeAdmin(item.email)} aria-label={`移除 ${item.email}`}>
+                      <Trash2 size={16} />
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getRequestUser } from "@/lib/auth-server";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { createMoodEntryRecord, deleteMoodEntryRecord, getPersonalMoodBundle, updateMoodEntryRecord } from "@/lib/mood-records";
+
+function revalidateMoodViews(entry?: { id?: string; monsterId?: string | null }) {
+  revalidatePath("/");
+  revalidatePath("/square");
+  revalidatePath("/mood");
+  if (entry?.monsterId) revalidatePath(`/monster/${entry.monsterId}`);
+}
 
 async function getAuthorizedProfile(request: Request) {
   const { user, error } = await getRequestUser(request);
@@ -36,6 +44,7 @@ export async function POST(request: Request) {
   try {
     const payload = await request.json();
     const entry = await createMoodEntryRecord(result.profile.id, payload);
+    revalidateMoodViews(entry);
     return NextResponse.json({ entry }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not create mood entry." }, { status: 500 });
@@ -59,6 +68,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Mood entry not found." }, { status: 404 });
     }
 
+    revalidateMoodViews(entry);
     return NextResponse.json({ entry });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not update mood entry." }, { status: 500 });
@@ -81,6 +91,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Mood entry not found." }, { status: 404 });
     }
 
+    revalidateMoodViews();
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not delete mood entry." }, { status: 500 });

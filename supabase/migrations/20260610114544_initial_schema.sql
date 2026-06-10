@@ -14,6 +14,11 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.admin_members (
+  email text primary key check (email = lower(trim(email)) and email like '%@%'),
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.notes (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -101,6 +106,7 @@ create index if not exists notes_status_published_idx on public.notes(status, pu
 create index if not exists notes_section_idx on public.notes(section, published_at desc);
 create index if not exists notes_author_profile_idx on public.notes(author_profile_id, published_at desc);
 create index if not exists profiles_auth_user_idx on public.profiles(auth_user_id);
+create index if not exists admin_members_email_idx on public.admin_members(email);
 create index if not exists comments_note_status_idx on public.comments(note_id, status, created_at asc);
 create index if not exists mood_supports_note_idx on public.mood_supports(note_id, created_at desc);
 create index if not exists mood_supports_monster_idx on public.mood_supports(monster_id, created_at desc);
@@ -111,6 +117,7 @@ create index if not exists mood_encouragements_entry_idx on public.mood_encourag
 
 alter table public.notes enable row level security;
 alter table public.profiles enable row level security;
+alter table public.admin_members enable row level security;
 alter table public.comments enable row level security;
 alter table public.mood_supports enable row level security;
 alter table public.mood_entries enable row level security;
@@ -121,6 +128,9 @@ create policy "Profiles are readable"
 on public.profiles for select
 to anon, authenticated
 using (true);
+
+drop policy if exists "Admin members are service role managed" on public.admin_members;
+-- Admin member records are managed through /api/admin/members with the service role.
 
 drop policy if exists "Users can insert their own profile" on public.profiles;
 create policy "Users can insert their own profile"

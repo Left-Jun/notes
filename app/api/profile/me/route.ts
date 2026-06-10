@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAdminIdentity } from "@/lib/admin";
 import { getRequestUser } from "@/lib/auth-server";
 import { defaultProfile, socialPlatforms } from "@/lib/profile";
 import { ensureProfileForUser, getProfileByAuthUserId, mapProfile, profileToRow } from "@/lib/profiles";
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
   const result = await getAuthorizedProfile(request);
   if ("response" in result) return result.response;
 
-  return NextResponse.json({ profile: result.profile });
+  return NextResponse.json({ profile: result.profile, admin: await getAdminIdentity(result.user.email) });
 }
 
 export async function PUT(request: Request) {

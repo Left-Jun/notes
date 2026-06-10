@@ -20,7 +20,12 @@ export function PwaClient() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          registration.update().catch(() => undefined);
+        })
+        .catch(() => undefined);
     }
 
     if (isStandaloneDisplay() || window.localStorage.getItem(dismissedKey) === "1") return;

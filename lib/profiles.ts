@@ -45,6 +45,13 @@ export function profileToRow(profile: Partial<UserProfile>) {
   };
 }
 
+function defaultDisplayNameForEmail(email?: string | null) {
+  const normalized = String(email || "").trim().toLowerCase();
+  if (normalized === "limenaut0@gmail.com") return "limenaut";
+  if (normalized === "zuo051607@163.com") return "Left Jun";
+  return "";
+}
+
 export async function getProfileById(id: string) {
   if (!isSupabaseConfigured()) {
     return id === defaultProfile.id ? defaultProfile : null;
@@ -70,6 +77,7 @@ export async function ensureProfileForUser(user: { id: string; email?: string; u
   if (existing) return existing;
 
   const displayName =
+    defaultDisplayNameForEmail(user.email) ||
     String(user.user_metadata?.display_name || user.user_metadata?.name || "").trim() ||
     user.email?.split("@")[0] ||
     defaultProfile.displayName;

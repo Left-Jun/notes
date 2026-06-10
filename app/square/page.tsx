@@ -6,6 +6,8 @@ import { displayProfile } from "@/lib/profile";
 import { buildSearchEntries } from "@/lib/search";
 import type { MoodPrivacy, UserProfile } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 type SquareEntry = {
   id: string;
   href: string;

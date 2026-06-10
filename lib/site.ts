@@ -3,7 +3,7 @@ import type { Section } from "@/lib/types";
 export const siteName = "limenauts";
 export const siteTitle = "limenauts | 阈限手记";
 export const siteDescription = "写下项目之外的日子：随笔、日记，以及一些作为标签慢慢留下的小念头。";
-export const developerEmail = "leftjun@leftjun.com";
+export const developerEmail = "limenaut0@gmail.com";
 
 export const sections: Section[] = [
   {

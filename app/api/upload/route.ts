@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getAdminIdentity } from "@/lib/admin";
+import { getRequestUser } from "@/lib/auth-server";
 import { canUseLocalWrite } from "@/lib/local-store";
 import { getAdminSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
-function isAuthorized(request: Request) {
+async function isAuthorized(request: Request) {
   if (!isSupabaseConfigured() && canUseLocalWrite()) {
     return true;
   }
 
   const expected = process.env.ADMIN_WRITE_TOKEN;
   const received = request.headers.get("x-admin-token");
-  return Boolean(expected && received && expected === received);
+  if (expected && received && expected === received) return true;
+
+  const { user } = await getRequestUser(request);
+  return Boolean(await getAdminIdentity(user?.email));
 }
 
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

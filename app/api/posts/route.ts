@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { getAdminIdentity } from "@/lib/admin";
 import { getRequestUser } from "@/lib/auth-server";
-import { canUseLocalWrite, upsertLocalNote } from "@/lib/local-store";
+import { canUseLocalWrite, getLocalNotes, upsertLocalNote } from "@/lib/local-store";
 import { ensureProfileForUser } from "@/lib/profiles";
 import { getAdminSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import type { Note, UserProfile } from "@/lib/types";
@@ -23,6 +25,41 @@ async function getPostAuthorProfile(request: Request): Promise<UserProfile | nul
 
   const profile = await ensureProfileForUser(user);
   return profile && !profile.deletedAt ? profile : null;
+}
+
+function noteFromRow(data: Record<string, any>): Note {
+  return {
+    id: data.id,
+    slug: data.slug,
+    title: data.title,
+    summary: data.summary || "",
+    content: data.content_md,
+    section: data.section,
+    tags: data.tags || [],
+    mood: data.mood,
+    moodIntensity: data.mood_intensity,
+    moodPrivacy: data.mood_privacy,
+    monsterId: data.monster_id,
+    supportCount: data.support_count || 0,
+    location: data.location,
+    coverUrl: data.cover_url,
+    authorProfileId: data.author_profile_id,
+    status: data.status,
+    publishedAt: data.published_at,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
+  };
+}
+
+function revalidateNoteViews(note?: { slug?: string; section?: string; monsterId?: string | null }) {
+  revalidatePath("/");
+  revalidatePath("/square");
+  revalidatePath("/category/all");
+  revalidatePath("/category/posts");
+  revalidatePath("/category/diary");
+  revalidatePath("/admin");
+  if (note?.slug) revalidatePath(`/notes/${note.slug}`);
+  if (note?.monsterId) revalidatePath(`/monster/${note.monsterId}`);
 }
 
 function toSlug(value: unknown, fallback: unknown) {
@@ -60,9 +97,12 @@ function toMoodPrivacy(value: unknown) {
 
 export async function POST(request: Request) {
   const authorizedByToken = isAuthorized(request);
-  const authorProfile = authorizedByToken ? null : await getPostAuthorProfile(request);
+  const { user } = await getRequestUser(request);
+  const adminIdentity = await getAdminIdentity(user?.email);
+  const isAdmin = authorizedByToken || Boolean(adminIdentity);
+  const authorProfile = user ? await ensureProfileForUser(user) : authorizedByToken ? null : await getPostAuthorProfile(request);
 
-  if (isSupabaseConfigured() && !authorizedByToken && !authorProfile) {
+  if (isSupabaseConfigured() && !isAdmin && !authorProfile) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -106,6 +146,34 @@ export async function POST(request: Request) {
   }
 
   const supabase = getAdminSupabase();
+  const sourceSlug = toSlug(payload.sourceSlug, slug);
+  const existingBySource =
+    sourceSlug && sourceSlug !== slug
+      ? await supabase.from("notes").select("*").eq("slug", sourceSlug).maybeSingle()
+      : { data: null, error: null };
+  const existingBySlug = await supabase.from("notes").select("*").eq("slug", slug).maybeSingle();
+
+  if (existingBySource.error) {
+    return NextResponse.json({ error: existingBySource.error.message }, { status: 500 });
+  }
+
+  if (existingBySlug.error) {
+    return NextResponse.json({ error: existingBySlug.error.message }, { status: 500 });
+  }
+
+  const sourceNote = existingBySource.data as Record<string, any> | null;
+  const slugNote = existingBySlug.data as Record<string, any> | null;
+  const targetNote = sourceNote || slugNote;
+
+  if (sourceNote && slugNote && sourceNote.id !== slugNote.id) {
+    return NextResponse.json({ error: "Slug is already used by another note." }, { status: 409 });
+  }
+
+  if (!isAdmin) {
+    if (targetNote && targetNote.author_profile_id !== authorProfile?.id) {
+      return NextResponse.json({ error: "You can only edit your own notes." }, { status: 403 });
+    }
+  }
 
   const row: Record<string, unknown> = {
     slug,
@@ -124,41 +192,65 @@ export async function POST(request: Request) {
     published_at: payload.publishedAt || new Date().toISOString()
   };
 
-  if (authorProfile?.id || payload.authorProfileId) {
-    row.author_profile_id = authorProfile?.id || payload.authorProfileId;
+  if (isAdmin) {
+    if ("authorProfileId" in payload) {
+      row.author_profile_id = payload.authorProfileId || null;
+    } else if (targetNote) {
+      row.author_profile_id = targetNote.author_profile_id || null;
+    } else if (authorProfile?.id) {
+      row.author_profile_id = authorProfile.id;
+    }
+  } else if (authorProfile?.id) {
+    row.author_profile_id = authorProfile.id;
   }
 
-  const { data, error } = await supabase
-    .from("notes")
-    .upsert(row, { onConflict: "slug" })
-    .select("*")
-    .single();
+  const query = targetNote
+    ? supabase.from("notes").update(row).eq("id", targetNote.id)
+    : supabase.from("notes").insert(row);
+  const { data, error } = await query.select("*").single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({
-    note: {
-      id: data.id,
-      slug: data.slug,
-      title: data.title,
-      summary: data.summary || "",
-      content: data.content_md,
-      section: data.section,
-      tags: data.tags || [],
-      mood: data.mood,
-      moodIntensity: data.mood_intensity,
-      moodPrivacy: data.mood_privacy,
-      monsterId: data.monster_id,
-      supportCount: data.support_count || 0,
-      location: data.location,
-      coverUrl: data.cover_url,
-      authorProfileId: data.author_profile_id,
-      status: data.status,
-      publishedAt: data.published_at,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
+  const note = noteFromRow(data);
+  revalidateNoteViews(note);
+  return NextResponse.json({ note, admin: adminIdentity });
+}
+
+export async function GET(request: Request) {
+  if (!isSupabaseConfigured()) {
+    if (!canUseLocalWrite()) {
+      return NextResponse.json({ error: "Supabase is not configured" }, { status: 503 });
     }
+
+    return NextResponse.json({ notes: await getLocalNotes(), admin: null });
+  }
+
+  const { user, error } = await getRequestUser(request);
+  if (!user) {
+    return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
+  }
+
+  const profile = await ensureProfileForUser(user);
+  const adminIdentity = await getAdminIdentity(user.email);
+  const supabase = getAdminSupabase();
+  let query = supabase.from("notes").select("*").order("published_at", { ascending: false });
+
+  if (!adminIdentity) {
+    if (!profile || profile.deletedAt) {
+      return NextResponse.json({ error: "Profile is unavailable." }, { status: profile?.deletedAt ? 410 : 500 });
+    }
+    query = query.eq("author_profile_id", profile.id);
+  }
+
+  const { data, error: notesError } = await query;
+  if (notesError) {
+    return NextResponse.json({ error: notesError.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    notes: (data || []).map((row) => noteFromRow(row as Record<string, any>)),
+    admin: adminIdentity
   });
 }

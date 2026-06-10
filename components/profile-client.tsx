@@ -1,11 +1,11 @@
 "use client";
 
-import { LogIn, UserRound } from "lucide-react";
+import { LayoutDashboard, LogIn, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SocialIcon } from "@/components/social-icon";
 import { defaultProfile, displayProfile, visibleSocialLinks } from "@/lib/profile";
 import { getBrowserSupabase, isBrowserSupabaseConfigured } from "@/lib/supabase-browser";
-import type { UserProfile } from "@/lib/types";
+import type { AdminIdentity, UserProfile } from "@/lib/types";
 
 export const profileChangedEvent = "limenauts-notes-profile-changed";
 
@@ -13,15 +13,16 @@ type ProfileState = {
   loading: boolean;
   signedIn: boolean;
   profile: UserProfile;
+  admin: AdminIdentity | null;
 };
 
 async function fetchCurrentProfile() {
   const supabase = getBrowserSupabase();
-  if (!supabase) return { signedIn: false, profile: defaultProfile };
+  if (!supabase) return { signedIn: false, profile: defaultProfile, admin: null };
 
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
-  if (!token) return { signedIn: false, profile: defaultProfile };
+  if (!token) return { signedIn: false, profile: defaultProfile, admin: null };
 
   const response = await fetch("/api/profile/me", {
     headers: {
@@ -31,13 +32,14 @@ async function fetchCurrentProfile() {
 
   if (!response.ok) {
     await supabase.auth.signOut();
-    return { signedIn: false, profile: defaultProfile };
+    return { signedIn: false, profile: defaultProfile, admin: null };
   }
 
-  const result = (await response.json()) as { profile?: UserProfile };
+  const result = (await response.json()) as { profile?: UserProfile; admin?: AdminIdentity | null };
   return {
     signedIn: Boolean(result.profile),
-    profile: result.profile || defaultProfile
+    profile: result.profile || defaultProfile,
+    admin: result.admin || null
   };
 }
 
@@ -45,7 +47,8 @@ export function useCurrentProfile() {
   const [state, setState] = useState<ProfileState>({
     loading: true,
     signedIn: false,
-    profile: defaultProfile
+    profile: defaultProfile,
+    admin: null
   });
 
   useEffect(() => {
@@ -169,6 +172,19 @@ export function AuthQuickEntry() {
   return (
     <a className="toolbar-avatar-link" href="/me" aria-label="打开个人主页" title="打开个人主页">
       <img className={display.deletedAt ? "is-deleted" : ""} src={display.avatarUrl || "/img/avatar.jpg"} alt={display.displayName} />
+    </a>
+  );
+}
+
+export function SidebarAdminLink({ active = false }: { active?: boolean }) {
+  const { signedIn, admin } = useCurrentProfile();
+
+  if (!signedIn || !admin) return null;
+
+  return (
+    <a className={active ? "sidebar-admin-link is-active" : "sidebar-admin-link"} href="/admin" aria-current={active ? "page" : undefined}>
+      <LayoutDashboard size={17} />
+      <span>后台</span>
     </a>
   );
 }
