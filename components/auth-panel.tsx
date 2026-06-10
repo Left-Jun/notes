@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyRound, LogIn, Mail, UserRound, UserPlus } from "lucide-react";
+import { KeyRound, LogIn, Mail, ShieldCheck, UserRound, UserPlus } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { profileChangedEvent } from "@/components/profile-client";
 import { getBrowserSupabase, isBrowserSupabaseConfigured } from "@/lib/supabase-browser";
@@ -59,7 +59,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     }
 
     if (password.length < 4) {
-      setMessage("密码至少需要 4 位，用于本地演示状态。");
+      setMessage("密码至少需要 4 位。");
       return;
     }
 
@@ -113,10 +113,24 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     <section className="auth-panel">
       <div className="auth-panel__intro">
         <p className="eyebrow">{isRegister ? "Register" : "Login"}</p>
-        <h1>{isRegister ? "创建一个手记身份。" : "回到你的手记身份。"}</h1>
+        <h1>{isRegister ? "创建你的记录账号。" : "登录后继续记录。"}</h1>
         <p>
-          使用 Supabase Auth 登录后，可以编辑个人主页、头像、状态和社交链接；这些资料会同步到左侧栏和文章作者信息。
+          账号用于保存你的个人资料、文章、情绪记录和评论身份。未登录时，站点不会再默认显示开发者的个人资料。
         </p>
+        <div className="auth-benefits" aria-label="账号能力">
+          <span>
+            <ShieldCheck size={16} />
+            资料独立保存
+          </span>
+          <span>
+            <UserRound size={16} />
+            左栏同步头像
+          </span>
+          <span>
+            <Mail size={16} />
+            邮箱密码登录
+          </span>
+        </div>
       </div>
 
       <form className="auth-form" onSubmit={submit}>
@@ -126,7 +140,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               <UserRound size={16} />
               昵称
             </span>
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例如 Left Jun" autoComplete="name" />
+            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="你的昵称" autoComplete="name" />
           </label>
         ) : null}
         <label>
@@ -134,7 +148,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
             <Mail size={16} />
             邮箱
           </span>
-          <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" type="email" autoComplete="email" />
+          <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="你的邮箱地址" type="email" autoComplete="email" />
         </label>
         <label>
           <span>
@@ -144,7 +158,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
           <input
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="本地演示密码"
+            placeholder={isRegister ? "设置登录密码" : "输入登录密码"}
             type="password"
             autoComplete={isRegister ? "new-password" : "current-password"}
           />
@@ -153,7 +167,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
         <div className="auth-form__actions">
           <button className="primary-link" type="submit" disabled={busy}>
             {isRegister ? <UserPlus size={18} /> : <LogIn size={18} />}
-            {busy ? "处理中..." : isRegister ? "注册并进入" : "登录"}
+            {busy ? "处理中..." : isRegister ? "注册账号" : "登录"}
           </button>
           <a className="secondary-link" href={isRegister ? "/login" : "/register"}>
             {isRegister ? "已有账号" : "注册"}

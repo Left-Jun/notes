@@ -1,4 +1,4 @@
-import { BookOpen, Feather, Heart, Home, MessageCircle, Plus, UserRound } from "lucide-react";
+import { BookOpen, Feather, Heart, Home, Mail, MessageCircle, Plus, UserRound } from "lucide-react";
 import { AuthQuickEntry, MobileProfileNavItem, SidebarProfile } from "@/components/profile-client";
 import { MobileNavController, SidebarCollapseButton } from "@/components/sidebar-controls";
 import { SiteSearch, type SiteSearchEntry } from "@/components/site-search";
@@ -46,6 +46,13 @@ export function SiteShell({ active = "home", children, searchEntries = [] }: Sit
       label: "情绪小站",
       mark: <Heart size={18} />,
       description: "记录自己的情绪。"
+    },
+    {
+      id: "contact",
+      href: "/contact",
+      label: "联系开发者",
+      mark: <Mail size={18} />,
+      description: "邮箱和站点维护信息。"
     },
     {
       id: "auth",

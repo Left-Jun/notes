@@ -5,6 +5,7 @@ import { marked } from "marked";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { moodMonsters } from "@/lib/mood";
 import type { MoodPrivacy, Note, NoteStatus } from "@/lib/types";
 
@@ -44,12 +45,12 @@ function toDatetimeLocal(value?: string) {
   return localDate.toISOString().slice(0, 16);
 }
 
-function emptyDraft(): EditorDraft {
+function emptyDraft(section = "posts"): EditorDraft {
   return {
     title: "",
     slug: "",
     summary: "",
-    section: "posts",
+    section,
     content: "",
     tags: "",
     mood: "",
@@ -94,11 +95,11 @@ function toIsoDate(value: FormDataEntryValue | null) {
   return new Date(raw).toISOString();
 }
 
-export function AdminEditor({ initialNotes }: { initialNotes: Note[] }) {
+export function AdminEditor({ initialNotes, defaultSection = "posts" }: { initialNotes: Note[]; defaultSection?: string }) {
   const router = useRouter();
   const [notes, setNotes] = useState(() => sortNotes(initialNotes));
   const [selectedSlug, setSelectedSlug] = useState("");
-  const [draft, setDraft] = useState<EditorDraft>(() => emptyDraft());
+  const [draft, setDraft] = useState<EditorDraft>(() => emptyDraft(defaultSection === "diary" ? "diary" : "posts"));
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
@@ -119,7 +120,7 @@ export function AdminEditor({ initialNotes }: { initialNotes: Note[] }) {
 
   function resetDraft() {
     setSelectedSlug("");
-    setDraft(emptyDraft());
+    setDraft(emptyDraft(defaultSection === "diary" ? "diary" : "posts"));
     setCoverUrl("");
     setSavedSlug("");
     setMessage("");
@@ -132,7 +133,7 @@ export function AdminEditor({ initialNotes }: { initialNotes: Note[] }) {
 
     const note = notes.find((item) => item.slug === slug);
     if (!note) {
-      setDraft(emptyDraft());
+      setDraft(emptyDraft(defaultSection === "diary" ? "diary" : "posts"));
       setCoverUrl("");
       return;
     }
@@ -166,11 +167,15 @@ export function AdminEditor({ initialNotes }: { initialNotes: Note[] }) {
       content: formData.get("content")
     };
 
+    const { data: sessionData } = (await getBrowserSupabase()?.auth.getSession()) || {};
+    const sessionToken = sessionData?.session?.access_token || "";
+
     const response = await fetch("/api/posts", {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-admin-token": token
+        "x-admin-token": token,
+        authorization: sessionToken ? `Bearer ${sessionToken}` : ""
       },
       body: JSON.stringify(payload)
     });
@@ -405,7 +410,7 @@ export function AdminEditor({ initialNotes }: { initialNotes: Note[] }) {
 
           <label>
             <span>发布口令</span>
-            <input value={token} onChange={(event) => setToken(event.target.value)} placeholder="线上口令" type="password" />
+            <input value={token} onChange={(event) => setToken(event.target.value)} placeholder="已登录可不填；维护者口令用于应急发布" type="password" />
           </label>
 
           <div className="editor-actions">

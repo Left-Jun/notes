@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { getRequestUser } from "@/lib/auth-server";
 import { canUseLocalWrite, upsertLocalNote } from "@/lib/local-store";
+import { ensureProfileForUser } from "@/lib/profiles";
 import { getAdminSupabase, isSupabaseConfigured } from "@/lib/supabase";
-import type { Note } from "@/lib/types";
+import type { Note, UserProfile } from "@/lib/types";
 
 function isAuthorized(request: Request) {
   if (!isSupabaseConfigured() && canUseLocalWrite()) {
@@ -11,6 +13,16 @@ function isAuthorized(request: Request) {
   const expected = process.env.ADMIN_WRITE_TOKEN;
   const received = request.headers.get("x-admin-token");
   return Boolean(expected && received && expected === received);
+}
+
+async function getPostAuthorProfile(request: Request): Promise<UserProfile | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const { user } = await getRequestUser(request);
+  if (!user) return null;
+
+  const profile = await ensureProfileForUser(user);
+  return profile && !profile.deletedAt ? profile : null;
 }
 
 function toSlug(value: unknown, fallback: unknown) {
@@ -47,7 +59,10 @@ function toMoodPrivacy(value: unknown) {
 }
 
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
+  const authorizedByToken = isAuthorized(request);
+  const authorProfile = authorizedByToken ? null : await getPostAuthorProfile(request);
+
+  if (isSupabaseConfigured() && !authorizedByToken && !authorProfile) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -79,7 +94,7 @@ export async function POST(request: Request) {
       supportCount: 0,
       location: payload.location || null,
       coverUrl: payload.coverUrl || null,
-      authorProfileId: payload.authorProfileId || null,
+      authorProfileId: authorProfile?.id || payload.authorProfileId || null,
       status: payload.status === "draft" ? "draft" : "published",
       publishedAt: payload.publishedAt || now,
       createdAt: now,
@@ -109,19 +124,41 @@ export async function POST(request: Request) {
     published_at: payload.publishedAt || new Date().toISOString()
   };
 
-  if (payload.authorProfileId) {
-    row.author_profile_id = payload.authorProfileId;
+  if (authorProfile?.id || payload.authorProfileId) {
+    row.author_profile_id = authorProfile?.id || payload.authorProfileId;
   }
 
   const { data, error } = await supabase
     .from("notes")
     .upsert(row, { onConflict: "slug" })
-    .select("id, slug")
+    .select("*")
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ note: data });
+  return NextResponse.json({
+    note: {
+      id: data.id,
+      slug: data.slug,
+      title: data.title,
+      summary: data.summary || "",
+      content: data.content_md,
+      section: data.section,
+      tags: data.tags || [],
+      mood: data.mood,
+      moodIntensity: data.mood_intensity,
+      moodPrivacy: data.mood_privacy,
+      monsterId: data.monster_id,
+      supportCount: data.support_count || 0,
+      location: data.location,
+      coverUrl: data.cover_url,
+      authorProfileId: data.author_profile_id,
+      status: data.status,
+      publishedAt: data.published_at,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    }
+  });
 }

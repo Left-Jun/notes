@@ -10,37 +10,37 @@ export const socialPlatforms: Array<{
   {
     id: "website",
     label: "个人网站",
-    placeholder: "https://leftjun.com"
+    placeholder: "https://example.com"
   },
   {
     id: "github",
     label: "GitHub",
-    placeholder: "https://github.com/Left-Jun"
+    placeholder: "https://github.com/your-name"
   },
   {
     id: "youtube",
     label: "YouTube",
-    placeholder: "https://www.youtube.com/@Limenaut"
+    placeholder: "https://www.youtube.com/@your-channel"
   },
   {
     id: "bilibili",
     label: "Bilibili",
-    placeholder: "https://space.bilibili.com/..."
+    placeholder: "https://space.bilibili.com/your-id"
   },
   {
     id: "xiaohongshu",
     label: "小红书",
-    placeholder: "https://www.xiaohongshu.com/user/profile/..."
+    placeholder: "https://www.xiaohongshu.com/user/profile/your-id"
   },
   {
     id: "instagram",
     label: "Instagram",
-    placeholder: "https://www.instagram.com/..."
+    placeholder: "https://www.instagram.com/your-name"
   },
   {
     id: "weibo",
     label: "微博",
-    placeholder: "https://weibo.com/..."
+    placeholder: "https://weibo.com/your-name"
   }
 ];
 

@@ -26,6 +26,51 @@ type MoodDraft = {
   recordedAt: string;
 };
 
+const moodPresets = [
+  {
+    mood: "焦虑",
+    intensity: "72",
+    coreReason: "事情很多，还没有拆成具体步骤。",
+    nextAction: "先写下最小的下一步。",
+    tags: "压力, 待办"
+  },
+  {
+    mood: "疲惫",
+    intensity: "58",
+    coreReason: "身体和注意力都需要休息。",
+    nextAction: "先离开屏幕十分钟。",
+    tags: "休息, 能量"
+  },
+  {
+    mood: "平静",
+    intensity: "34",
+    coreReason: "今天的节奏暂时可以承受。",
+    nextAction: "保留这个节奏，不额外加任务。",
+    tags: "稳定"
+  },
+  {
+    mood: "低落",
+    intensity: "66",
+    coreReason: "有些期待没有落地。",
+    nextAction: "允许自己先不解决全部问题。",
+    tags: "情绪, 恢复"
+  },
+  {
+    mood: "专注",
+    intensity: "46",
+    coreReason: "正在进入一段能推进事情的状态。",
+    nextAction: "锁定一个 25 分钟的小任务。",
+    tags: "学习, 专注"
+  },
+  {
+    mood: "开心",
+    intensity: "28",
+    coreReason: "有一件小事让今天变亮了一点。",
+    nextAction: "把这件事写下来。",
+    tags: "快乐, 日常"
+  }
+];
+
 const pressureMonster = getMoodMonster("pressure-bloom") || {
   id: "pressure-bloom",
   name: "压力苔",
@@ -231,6 +276,13 @@ export function MoodStationClient() {
     setDraft((current) => ({ ...current, [key]: value }));
   }
 
+  function applyPreset(preset: (typeof moodPresets)[number]) {
+    setDraft((current) => ({
+      ...current,
+      ...preset
+    }));
+  }
+
   async function submitEntry(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const token = await getSessionToken();
@@ -338,6 +390,19 @@ export function MoodStationClient() {
               </label>
             </div>
 
+            <div className="mood-preset-grid" aria-label="预制情绪">
+              {moodPresets.map((preset) => (
+                <button
+                  className={draft.mood === preset.mood ? "is-selected" : ""}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  key={preset.mood}
+                >
+                  {preset.mood}
+                </button>
+              ))}
+            </div>
+
             <label>
               <span>情绪核心</span>
               <input value={draft.coreReason} onChange={(event) => updateDraft("coreReason", event.target.value)} placeholder="这次情绪主要来自什么？" required />
@@ -347,6 +412,26 @@ export function MoodStationClient() {
               <span>下一步修复动作</span>
               <input value={draft.nextAction} onChange={(event) => updateDraft("nextAction", event.target.value)} placeholder="比如：先写 3 行、喝水、睡前停下" />
             </label>
+
+            <div className="mood-visibility-control" aria-label="情绪记录可见范围">
+              <span>可见范围</span>
+              <div>
+                {[
+                  ["private", "仅自己"],
+                  ["summary", "公开摘要"],
+                  ["anonymous", "匿名公开"]
+                ].map(([value, label]) => (
+                  <button
+                    className={draft.privacy === value ? "is-selected" : ""}
+                    type="button"
+                    onClick={() => updateDraft("privacy", value as MoodPrivacy)}
+                    key={value}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <details className="mood-more-options">
               <summary>
@@ -367,20 +452,10 @@ export function MoodStationClient() {
                     placeholder="可以写给自己看，也可以只留一句摘要。"
                   />
                 </label>
-                <div className="form-grid">
-                  <label>
-                    <span>标签</span>
-                    <input value={draft.tags} onChange={(event) => updateDraft("tags", event.target.value)} placeholder="学习, 睡眠, 社交" />
-                  </label>
-                  <label>
-                    <span>公开方式</span>
-                    <select value={draft.privacy} onChange={(event) => updateDraft("privacy", event.target.value as MoodPrivacy)}>
-                      <option value="private">私密</option>
-                      <option value="summary">摘要公开</option>
-                      <option value="anonymous">匿名公开</option>
-                    </select>
-                  </label>
-                </div>
+                <label>
+                  <span>标签</span>
+                  <input value={draft.tags} onChange={(event) => updateDraft("tags", event.target.value)} placeholder="学习, 睡眠, 社交" />
+                </label>
               </div>
             </details>
 

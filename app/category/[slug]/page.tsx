@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { notFound } from "next/navigation";
 import { NoteCard } from "@/components/note-card";
 import { SiteShell } from "@/components/site-shell";
@@ -26,6 +27,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <p className="eyebrow">{section.mark} Archive</p>
         <h1>{section.label}</h1>
         <p>{section.description}</p>
+        {section.id === "posts" || section.id === "diary" ? (
+          <div className="hero-actions">
+            <a className="primary-link" href={`/admin?section=${section.id}`}>
+              <Plus size={18} />
+              {section.id === "diary" ? "写日记" : "写随笔"}
+            </a>
+          </div>
+        ) : null}
       </section>
 
       <div className="note-list">

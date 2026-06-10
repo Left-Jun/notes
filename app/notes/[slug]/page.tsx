@@ -1,8 +1,9 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AuthorBadge } from "@/components/author-badge";
+import { CommentThread } from "@/components/comment-thread";
 import { SiteShell } from "@/components/site-shell";
-import { getNoteBySlug, getNotes, renderMarkdown } from "@/lib/notes";
+import { getComments, getNoteBySlug, getNotes, renderMarkdown } from "@/lib/notes";
 import { buildSearchEntries } from "@/lib/search";
 import { formatDate, getSection } from "@/lib/site";
 
@@ -18,6 +19,7 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
 
   const section = getSection(note.section);
   const html = renderMarkdown(note.content);
+  const comments = await getComments(note.id);
   const searchEntries = buildSearchEntries(await getNotes({ status: "published" }));
 
   return (
@@ -51,6 +53,7 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
           ))}
         </footer>
       </article>
+      <CommentThread noteId={note.id} noteSlug={note.slug} initialComments={comments} />
     </SiteShell>
   );
 }

@@ -30,12 +30,13 @@ async function fetchCurrentProfile() {
   });
 
   if (!response.ok) {
-    return { signedIn: true, profile: defaultProfile };
+    await supabase.auth.signOut();
+    return { signedIn: false, profile: defaultProfile };
   }
 
   const result = (await response.json()) as { profile?: UserProfile };
   return {
-    signedIn: true,
+    signedIn: Boolean(result.profile),
     profile: result.profile || defaultProfile
   };
 }
@@ -74,7 +75,48 @@ export function useCurrentProfile() {
 }
 
 export function SidebarProfile() {
-  const { profile } = useCurrentProfile();
+  const { loading, signedIn, profile } = useCurrentProfile();
+
+  if (loading) {
+    return (
+      <div className="profile-card profile-card--guest">
+        <div className="profile">
+          <div className="profile-head">
+            <span className="avatar-wrap avatar-wrap--placeholder" aria-hidden="true">
+              <UserRound size={22} />
+            </span>
+          </div>
+          <div className="profile-copy">
+            <p className="profile-name">读取中</p>
+            <p className="profile-subtitle">正在确认登录状态。</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isBrowserSupabaseConfigured() || !signedIn) {
+    return (
+      <div className="profile-card profile-card--guest">
+        <div className="profile">
+          <div className="profile-head">
+            <a className="avatar-wrap avatar-wrap--placeholder" href="/login" aria-label="登录账号">
+              <UserRound size={22} />
+            </a>
+          </div>
+          <div className="profile-copy">
+            <p className="profile-name">未登录</p>
+            <p className="profile-subtitle">登录后这里会显示你的头像、昵称和状态。</p>
+          </div>
+          <div className="profile-guest-actions">
+            <a href="/login">登录</a>
+            <a href="/register">注册</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const display = displayProfile(profile);
   const links = visibleSocialLinks(display.socialLinks);
   const profileHref = display.id === defaultProfile.id ? `/u/${defaultProfile.id}` : "/me";
