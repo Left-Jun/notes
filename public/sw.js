@@ -32,6 +32,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -42,6 +47,11 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
     );
+    return;
+  }
+
+  if (request.destination === "script" || request.destination === "style" || request.headers.get("rsc")) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
     return;
   }
 

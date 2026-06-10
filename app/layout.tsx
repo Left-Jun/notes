@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { PwaClient } from "@/components/pwa-client";
 import { siteDescription, siteTitle } from "@/lib/site";
 import "./globals.css";
@@ -66,7 +65,7 @@ function ThemeBootScript() {
 })();
 `;
 
-  return <Script id="limenauts-theme-boot" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: script }} />;
+  return <script id="limenauts-theme-boot" dangerouslySetInnerHTML={{ __html: script }} suppressHydrationWarning />;
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

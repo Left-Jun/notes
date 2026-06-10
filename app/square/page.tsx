@@ -1,10 +1,25 @@
 import { SiteShell } from "@/components/site-shell";
-import { getMoodMonster } from "@/lib/mood";
+import { getMoodMonster, getPublicMoodEntries } from "@/lib/mood";
 import { getPublicMoodEntryRecords } from "@/lib/mood-records";
 import { getNotes } from "@/lib/notes";
 import { displayProfile } from "@/lib/profile";
 import { buildSearchEntries } from "@/lib/search";
-import type { MoodEntryRecord, MoodPrivacy } from "@/lib/types";
+import type { MoodPrivacy, UserProfile } from "@/lib/types";
+
+type SquareEntry = {
+  id: string;
+  href: string;
+  mood: string;
+  intensity: number;
+  coreReason: string;
+  note?: string | null;
+  tags: string[];
+  privacy: MoodPrivacy;
+  monsterId?: string | null;
+  supportCount: number;
+  recordedAt: string;
+  profile?: UserProfile | null;
+};
 
 function privacyCopy(value: MoodPrivacy) {
   if (value === "anonymous") return "匿名公开";
@@ -12,9 +27,16 @@ function privacyCopy(value: MoodPrivacy) {
   return "私密";
 }
 
-function entryHref(entry: MoodEntryRecord) {
+function moodRecordHref(entry: { id: string; monsterId?: string | null }) {
   const monsterId = entry.monsterId || "pressure-bloom";
   return `/monster/${monsterId}?moodEntry=${encodeURIComponent(entry.id)}`;
+}
+
+function legacyMoodHref(entry: { id: string; noteSlug?: string; monsterId?: string | null }) {
+  const monsterId = entry.monsterId || "pressure-bloom";
+  const queryKey = entry.noteSlug ? "slug" : "entry";
+  const queryValue = entry.noteSlug || entry.id;
+  return `/monster/${monsterId}?${queryKey}=${encodeURIComponent(queryValue)}`;
 }
 
 function formatDate(value: string) {
@@ -27,8 +49,38 @@ function formatDate(value: string) {
 }
 
 export default async function MoodSquarePage() {
-  const [notes, publicEntries] = await Promise.all([getNotes({ status: "published" }), getPublicMoodEntryRecords()]);
+  const [notes, publicMoodRecords] = await Promise.all([getNotes({ status: "published" }), getPublicMoodEntryRecords()]);
   const searchEntries = buildSearchEntries(notes);
+  const publicEntries: SquareEntry[] =
+    publicMoodRecords.length > 0
+      ? publicMoodRecords.map((entry) => ({
+          id: entry.id,
+          href: moodRecordHref(entry),
+          mood: entry.mood,
+          intensity: entry.intensity,
+          coreReason: entry.coreReason,
+          note: entry.note,
+          tags: entry.tags,
+          privacy: entry.privacy,
+          monsterId: entry.monsterId,
+          supportCount: entry.supportCount,
+          recordedAt: entry.recordedAt,
+          profile: entry.profile
+        }))
+      : getPublicMoodEntries(notes).map((entry) => ({
+          id: entry.id,
+          href: legacyMoodHref(entry),
+          mood: entry.mood,
+          intensity: entry.intensity,
+          coreReason: entry.title,
+          note: entry.summary,
+          tags: entry.tags,
+          privacy: entry.privacy,
+          monsterId: entry.monsterId,
+          supportCount: entry.supportCount,
+          recordedAt: entry.date,
+          profile: null
+        }));
 
   return (
     <SiteShell active="square" searchEntries={searchEntries}>
@@ -69,7 +121,7 @@ export default async function MoodSquarePage() {
                 </div>
                 <div className="mood-square-card__support">
                   <span>{entry.supportCount} 次支持</span>
-                  <a href={entryHref(entry)}>{monster ? `帮 TA 击败${monster.name}` : "帮 TA 轻轻推一下"}</a>
+                  <a href={entry.href}>{monster ? `帮 TA 击败${monster.name}` : "帮 TA 轻轻推一下"}</a>
                 </div>
               </article>
             );
