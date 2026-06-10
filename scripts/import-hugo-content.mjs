@@ -1,8 +1,31 @@
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import matter from "gray-matter";
 import { createClient } from "@supabase/supabase-js";
+
+function loadLocalEnv() {
+  try {
+    const raw = fsSync.readFileSync(".env.local", "utf8");
+
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+
+      const separator = trimmed.indexOf("=");
+      if (separator < 1) continue;
+
+      const key = trimmed.slice(0, separator);
+      const value = trimmed.slice(separator + 1);
+      process.env[key] ||= value;
+    }
+  } catch {
+    // .env.local is optional; CI and production can inject variables directly.
+  }
+}
+
+loadLocalEnv();
 
 const contentDir = process.env.HUGO_CONTENT_DIR || "C:/Users/MR/Desktop/LeftJun-Notes/content";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
